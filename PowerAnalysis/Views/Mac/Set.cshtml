@@ -1,0 +1,86 @@
+﻿@model dynamic
+
+@{
+	ViewBag.Title = "MAC set";
+}
+
+<h2>Chart Test</h2>
+<div>
+<canvas id="canvas" width="500" height="500"/>
+</div>
+<div>
+<button type="button" id="printCanvas">Print...</button>
+</div>
+<script language="javascript">
+	
+$(function() {
+	var canvas = document.getElementById("canvas");
+	var ctx = canvas.getContext("2d");
+
+	var line = function (a, b) {
+		ctx.beginPath();
+		ctx.moveTo(a.x, a.y);
+		ctx.lineTo(b.x, b.y);
+		ctx.stroke();
+	};
+
+	var yScale = function (y) {
+		ctx.scale(1,-1);
+		ctx.textAlign = 'right';
+		var w = 500 / 2;
+		ctx.fillText('0', -5, 0);
+		var currentY = y;
+		while(currentY < w) {
+			ctx.fillText(-currentY.toString(10), -5, currentY);
+			ctx.fillText(currentY.toString(10), -5, -currentY);
+			currentY += y;
+		}
+		ctx.scale(1,-1);
+	};
+	
+	ctx.translate(0,canvas.height); 
+	ctx.scale(1,-1);
+
+	ctx.translate(50, 250);
+	
+	
+	// Draw axis
+	line({x:0, y:-200}, {x:0, y:200});
+	line({x:0, y:0}, {x:450, y:0});
+	// y Scale
+	yScale(100);
+
+	// Chart items
+	var items = [
+		{x:10, y: -200}, 
+		{x:20, y: -100}, 
+		{x:40, y: -50}, 
+		{x:10, y: -10}, 
+		{x:20, y: 20}, 
+		{x:10, y: 40}, 
+		{x:30, y: 70}, 
+		{x:20, y: 100}, 
+		{x:10, y: 150}, 
+		{x:20, y: 200}
+	];
+
+	var itemCount = items.length;
+	ctx.save();
+	ctx.fillStyle = 'green';
+	ctx.strokeStyle = 'black';
+	for(var i=0; i<itemCount;i+=1) {
+		var currentItem = items[i];
+		ctx.fillRect(0, 0, currentItem.x, currentItem.y);
+		ctx.strokeRect(0, 0, currentItem.x, currentItem.y);
+		ctx.translate(currentItem.x, 0);
+	}
+	ctx.restore();
+
+	$('#printCanvas').bind('click', function () {
+		var img = canvas.toDataURL("image/png");
+		document.write('<img src="'+img+'"/>');
+	});
+});
+
+
+</script>
