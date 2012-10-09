@@ -26,7 +26,7 @@ $(function() {
 	var canvas = document.getElementById("canvas");
 	var ctx = canvas.getContext("2d");
 	var canvasXOffset = 50;
-	ctx.translate(canvasXOffset, 250);
+	ctx.translate(canvasXOffset, 280);
 	// Draw axis
 	line({x:0, y:-200}, {x:0, y:200});
 	line({x:0, y:0}, {x:450, y:0});
@@ -36,14 +36,14 @@ $(function() {
 	// Chart items
 	var items = [
 		{x:10, y: -150, label: 'Item1'}, 
-		{x:20, y: -100, label: 'Item2'}, 
-		{x:40, y: -50, label: 'Item3'}, 
-		{x:10, y: -10, label: 'Item4'}, 
+		{x:20, y: -100, label: 'Item2abcdefg'}, 
+		{x:10, y: -99, label: 'Item3somethingelse'}, 
+		{x:10, y: -10, label: 'Item4isverylong'}, 
 		{x:20, y: 20, label: 'Item5'}, 
 		{x:10, y: 40, label: 'Item6'}, 
 		{x:30, y: 70, label: 'Item7'}, 
-		{x:20, y: 100, label: 'Item8'}, 
-		{x:10, y: 150, label: 'Item9'}, 
+		{x:20, y: 75, label: 'Item8'}, 
+		{x:10, y: 80, label: 'Item9WhichIsLong'}, 
 		{x:20, y: 200, label: 'Item10'}
 	];
 		
@@ -95,16 +95,9 @@ $(function() {
 		ctx.strokeRect(i.x, i.y, i.width, i.height);
 	};
 
-	var labelLineLength = 20;
-	var lineToLabel = 2;
 	var drawLabel = function (i) {
-		var midPointX = i.x + (i.width / 2);
-		var startPos = { x: midPointX, y: i.height };
-		var endPos = {
-			x: midPointX,
-			y: i.height > 0? i.height + labelLineLength: i.height - labelLineLength
-		};
-		line(startPos, endPos);
+		var endPos = i.lineEndPos;
+		line(i.lineStartPos, i.lineEndPos);
 		if (endPos.y > 0) {
 			ctx.textAlign = 'left';
 			ctx.textBaseline = 'middle';
@@ -115,6 +108,53 @@ $(function() {
 			ctx.fillText(i.label, endPos.x - lineToLabel, endPos.y);
 		}
 	};
+	
+	// split + and -
+	var count = itemsInVpCoords.length;
+	var currentPos = 0, breakPos = 0;
+	while (itemsInVpCoords[currentPos].height > 0 && currentPos < count) {
+		++breakPos;
+		++currentPos;
+	}
+	var positiveItems = itemsInVpCoords.slice(0, breakPos);
+	var negItems = itemsInVpCoords.slice(breakPos);
+	
+	var labelLineLength = 20;
+	var lineToLabel = 2;
+	var minLabelDistance = 20;
+	var lastLabel = 0;
+	var calculateLabelPos = function (i) {
+		var midPointX = i.x + (i.width / 2);
+		i.lineStartPos = { x: midPointX, y: i.height };
+		i.lineEndPos = {
+			x: midPointX,
+			y: i.height > 0? i.height + labelLineLength: i.height - labelLineLength
+		};
+		if (lastLabel + minLabelDistance > i.lineEndPos.y) {
+			i.lineEndPos.y = lastLabel + minLabelDistance;
+		}
+		lastLabel = i.lineEndPos.y;
+	};
+
+	positiveItems.reverse();
+	positiveItems.forEach(calculateLabelPos);
+
+	var calculateNegLabelPos = function (i) {
+		var midPointX = i.x + (i.width / 2);
+		i.lineStartPos = { x: midPointX, y: i.height };
+		i.lineEndPos = {
+			x: midPointX,
+			y: i.height - labelLineLength
+		};
+		if (lastLabel - minLabelDistance < i.lineEndPos.y) {
+			i.lineEndPos.y = lastLabel - minLabelDistance;
+		}
+		lastLabel = i.lineEndPos.y;
+	};
+	lastLabel = 0;
+	negItems.forEach(calculateNegLabelPos);
+
+	//itemsInVpCoords.forEach(calculateLabelPos);
 
 	ctx.fillStyle = 'green';
 	ctx.strokeStyle = 'black';
