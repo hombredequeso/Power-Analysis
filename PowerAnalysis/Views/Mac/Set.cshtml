@@ -14,8 +14,6 @@
 <script language="javascript">
 	
 $(function() {
-	var canvas = document.getElementById("canvas");
-	var ctx = canvas.getContext("2d");
 
 	var line = function (a, b) {
 		ctx.beginPath();
@@ -24,58 +22,106 @@ $(function() {
 		ctx.stroke();
 	};
 
-	var yScale = function (y) {
-		ctx.scale(1,-1);
-		ctx.textAlign = 'right';
-		var w = 500 / 2;
-		ctx.fillText('0', -5, 0);
-		var currentY = y;
-		while(currentY < w) {
-			ctx.fillText(-currentY.toString(10), -5, currentY);
-			ctx.fillText(currentY.toString(10), -5, -currentY);
-			currentY += y;
-		}
-		ctx.scale(1,-1);
-	};
-	
-	ctx.translate(0,canvas.height); 
-	ctx.scale(1,-1);
 
-	ctx.translate(50, 250);
-	
-	
+	var canvas = document.getElementById("canvas");
+	var ctx = canvas.getContext("2d");
+	var canvasXOffset = 50;
+	ctx.translate(canvasXOffset, 250);
 	// Draw axis
 	line({x:0, y:-200}, {x:0, y:200});
 	line({x:0, y:0}, {x:450, y:0});
-	// y Scale
-	yScale(100);
+
+
 
 	// Chart items
 	var items = [
-		{x:10, y: -200}, 
-		{x:20, y: -100}, 
-		{x:40, y: -50}, 
-		{x:10, y: -10}, 
-		{x:20, y: 20}, 
-		{x:10, y: 40}, 
-		{x:30, y: 70}, 
-		{x:20, y: 100}, 
-		{x:10, y: 150}, 
-		{x:20, y: 200}
+		{x:10, y: -150, label: 'Item1'}, 
+		{x:20, y: -100, label: 'Item2'}, 
+		{x:40, y: -50, label: 'Item3'}, 
+		{x:10, y: -10, label: 'Item4'}, 
+		{x:20, y: 20, label: 'Item5'}, 
+		{x:10, y: 40, label: 'Item6'}, 
+		{x:30, y: 70, label: 'Item7'}, 
+		{x:20, y: 100, label: 'Item8'}, 
+		{x:10, y: 150, label: 'Item9'}, 
+		{x:20, y: 200, label: 'Item10'}
 	];
+		
+	// preprocess items:
 
-	var itemCount = items.length;
-	ctx.save();
+	var currentX = 0;
+	var preProcess = function (e) {
+		var result = $.extend({ }, e, {
+			x: currentX,
+			y: 0,
+			width: e.x,
+			height: e.y
+		});
+		currentX += e.x;
+		return result;
+	};
+
+	var preProcessedItems = items.map(preProcess);
+	
+	var xInItemCoords = currentX;
+	var canvasX = 500;
+	var canvasRightBorder = 10;
+	var canvasXForItems = canvasX - canvasXOffset - canvasRightBorder;
+	var xScaling = canvasXForItems / xInItemCoords;
+
+	var yCoords = items.map(function (i) { return i.y; });
+	var yMaxInItemCoords = Math.max.apply( Math, yCoords );
+	var yMinInItemCoords = Math.min.apply( Math, yCoords );
+	var yRange = yMaxInItemCoords - yMinInItemCoords;
+
+
+	var canvasY = 500;
+	var topBorder = 10, bottomBorder = 10, spaceForLabels = 20;
+	var yScaling = (canvasY - topBorder - bottomBorder - (2 * spaceForLabels)) / yRange;
+
+	var chartValueToViewPortTransform = function (p) {
+		return $.extend({ }, p, {
+			x: p.x * xScaling,
+			y: p.y * -1 * yScaling,
+			width: p.width * xScaling,
+			height: p.height * -1 * yScaling
+		});
+	};
+
+	var itemsInVpCoords = preProcessedItems.map(chartValueToViewPortTransform);
+
+	var drawItem = function (i) {
+		ctx.fillRect(i.x, i.y, i.width, i.height);
+		ctx.strokeRect(i.x, i.y, i.width, i.height);
+	};
+
+	var labelLineLength = 20;
+	var lineToLabel = 2;
+	var drawLabel = function (i) {
+		var midPointX = i.x + (i.width / 2);
+		var startPos = { x: midPointX, y: i.height };
+		var endPos = {
+			x: midPointX,
+			y: i.height > 0? i.height + labelLineLength: i.height - labelLineLength
+		};
+		line(startPos, endPos);
+		if (endPos.y > 0) {
+			ctx.textAlign = 'left';
+			ctx.textBaseline = 'middle';
+			ctx.fillText(i.label, endPos.x + lineToLabel, endPos.y);
+		} else {
+			ctx.textAlign = 'right';
+			ctx.textBaseline = 'middle';
+			ctx.fillText(i.label, endPos.x - lineToLabel, endPos.y);
+		}
+	};
+
 	ctx.fillStyle = 'green';
 	ctx.strokeStyle = 'black';
-	for(var i=0; i<itemCount;i+=1) {
-		var currentItem = items[i];
-		ctx.fillRect(0, 0, currentItem.x, currentItem.y);
-		ctx.strokeRect(0, 0, currentItem.x, currentItem.y);
-		ctx.translate(currentItem.x, 0);
-	}
-	ctx.restore();
-
+	itemsInVpCoords.forEach(drawItem);
+	ctx.fillStyle = 'black';
+	itemsInVpCoords.forEach(drawLabel);
+	
 	$('#printCanvas').bind('click', function () {
 		var img = canvas.toDataURL("image/png");
 		document.write('<img src="'+img+'"/>');
