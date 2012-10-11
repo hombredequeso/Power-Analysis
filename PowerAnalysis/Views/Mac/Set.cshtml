@@ -1,4 +1,5 @@
-﻿@model dynamic
+﻿@using Newtonsoft.Json
+@model string
 
 @{
 	ViewBag.Title = "MAC set";
@@ -24,23 +25,22 @@ $(function() {
 
 
 	var canvasXOffset = 50;
-
-
+	var xyz = @Html.Raw(Model);
 
 	// Chart items
-	var items = [
-		{x:10, y: -150, label: 'Item1'}, 
-		{x:20, y: -100, label: 'Item2abcdefg'}, 
-		{x:10, y: -99, label: 'Item3somethingelse'}, 
-		{x:10, y: -10, label: 'Item4isverylong'}, 
-		{x:20, y: 20, label: 'Item5'}, 
-		{x:10, y: 40, label: 'Item6'}, 
-		{x:30, y: 70, label: 'Item7'}, 
-		{x:20, y: 75, label: 'Item8'}, 
-		{x:10, y: 80, label: 'Item9WhichIsLong'}, 
-		{x:20, y: 140, label: 'Item10'}
-	];
-		
+//	var items = [
+//		{x:10, y: -150, label: 'Item1'}, 
+//		{x:20, y: -100, label: 'Item2abcdefg'}, 
+//		{x:10, y: -99, label: 'Item3somethingelse'}, 
+//		{x:10, y: -10, label: 'Item4isverylong'}, 
+//		{x:20, y: 20, label: 'Item5'}, 
+//		{x:10, y: 40, label: 'Item6'}, 
+//		{x:30, y: 70, label: 'Item7'}, 
+//		{x:20, y: 75, label: 'Item8'}, 
+//		{x:10, y: 80, label: 'Item9WhichIsLong'}, 
+//		{x:20, y: 140, label: 'Item10'}
+//	];
+	var items = xyz.items;		
 	// preprocess items:
 
 	var currentX = 0;
