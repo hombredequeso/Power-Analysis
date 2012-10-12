@@ -228,6 +228,9 @@
   <ItemGroup>
     <Content Include="Views\Mac\Set.cshtml" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Mac\Load.cshtml" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

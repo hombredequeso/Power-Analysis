@@ -1,0 +1,12 @@
+﻿@model dynamic
+
+@{
+    ViewBag.Title = "File upload";
+}
+
+
+@using (Html.BeginForm("Load", "Mac", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <input type="file" name="file" />
+    <input type="submit" value="OK" />
+}

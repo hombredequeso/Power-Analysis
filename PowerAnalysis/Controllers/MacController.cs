@@ -1,4 +1,6 @@
-﻿using System.Web.Mvc;
+﻿using System.IO;
+using System.Web;
+using System.Web.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -44,6 +46,31 @@ namespace PowerAnalysis.Controllers
 			                                                     			new CamelCasePropertyNamesContractResolver()
 			                                                     	});
 			return View(serializedChart);
+		}
+
+		public ActionResult Load()
+		{
+			return View();
+		}
+
+		[HttpPost]
+		public ActionResult Load(HttpPostedFileBase file)
+		{
+			// Verify that the user selected a file
+			if (file != null && file.ContentLength > 0)
+			{
+				using (MemoryStream ms = new MemoryStream())
+				{
+					file.InputStream.CopyTo(ms);
+					byte[] array = ms.GetBuffer();
+
+					// convert stream to string.
+					// deserialize string into chart.
+					// save in Ravendb.
+				}
+			}
+			// redirect back to the index action to show the form once again
+			return RedirectToAction("Set");
 		}
 	}
 }
