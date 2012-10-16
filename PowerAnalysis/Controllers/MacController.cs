@@ -18,6 +18,20 @@ namespace PowerAnalysis.Controllers
 		public ChartItem[] Items { get; set; }
 	}
 
+	public static class ViewSerializer
+	{
+		public static string Serialize(this object x)
+		{
+			return JsonConvert.SerializeObject(x,
+																			 Formatting.Indented,
+																			 new JsonSerializerSettings
+																			 {
+																				 ContractResolver =
+																					 new CamelCasePropertyNamesContractResolver()
+																			 });			
+		}
+	}
+
 
 	public class MacController : Controller
 	{
@@ -32,20 +46,13 @@ namespace PowerAnalysis.Controllers
 			            	{
 			            		Items = new[]
 			            		        	{
-			            		        		new ChartItem() {x = 10, y = -200, label = "theLabel"},
-			            		        		new ChartItem() {x = 20, y = -50, label = "theLabel"},
-			            		        		new ChartItem() {x = 30, y = 50, label = "theLabel"},
-			            		        		new ChartItem() {x = 40, y = 100, label = "item2"}
+			            		        		new ChartItem() {x = 10, y = -200, label = "theLabel1"},
+			            		        		new ChartItem() {x = 20, y = -50, label = "theLabel2"},
+			            		        		new ChartItem() {x = 30, y = 50, label = "theLabel3"},
+			            		        		new ChartItem() {x = 40, y = 100, label = "theLabel4"}
 			            		        	}
 			            	};
-			object serializedChart = JsonConvert.SerializeObject(chart,
-			                                                     Formatting.Indented,
-			                                                     new JsonSerializerSettings
-			                                                     	{
-			                                                     		ContractResolver =
-			                                                     			new CamelCasePropertyNamesContractResolver()
-			                                                     	});
-			return View(serializedChart);
+			return View(chart);
 		}
 
 		public ActionResult Load()
@@ -59,14 +66,10 @@ namespace PowerAnalysis.Controllers
 			// Verify that the user selected a file
 			if (file != null && file.ContentLength > 0)
 			{
-				using (MemoryStream ms = new MemoryStream())
-				{
-					file.InputStream.CopyTo(ms);
-					byte[] array = ms.GetBuffer();
-
-					// convert stream to string.
-					// deserialize string into chart.
-					// save in Ravendb.
+					using (StreamReader reader = new StreamReader(file.InputStream))
+					{
+						string text = reader.ReadToEnd();
+						var chart = JsonConvert.DeserializeObject<Chart>(text);
 				}
 			}
 			// redirect back to the index action to show the form once again
