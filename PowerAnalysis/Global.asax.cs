@@ -6,6 +6,8 @@ using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
+using Raven.Client;
+using Raven.Client.Document;
 
 namespace PowerAnalysis
 {
@@ -22,6 +24,18 @@ namespace PowerAnalysis
 			FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
 			RouteConfig.RegisterRoutes(RouteTable.Routes);
 			BundleConfig.RegisterBundles(BundleTable.Bundles);
+			InitializeRavenDb();
 		}
+
+		public static IDocumentStore RavenStore;
+
+		private void InitializeRavenDb()
+		{
+			RavenStore = new DocumentStore { ConnectionStringName = "RavenDB" };
+			RavenStore.Initialize();
+
+			// IndexCreation.CreateIndexes(Assembly.GetCallingAssembly(), RavenStore);
+		}
+
 	}
 }

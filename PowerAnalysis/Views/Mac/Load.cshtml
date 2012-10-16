@@ -8,5 +8,36 @@
 @using (Html.BeginForm("Load", "Mac", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
     <input type="file" name="file" />
-    <input type="submit" value="OK" />
+    <p /><input type="submit" value="Load" />
 }
+
+<p/>
+The file loaded should be a text file, with a format like the following (substitute your own data):
+<p/>
+{<br/>
+  "name": "testa",<br/>
+  "description": "first test",<br/>
+  "items": [<br/>
+    {<br/>
+      "x": 10,<br/>
+      "y": -200,<br/>
+      "label": "theLabel"<br/>
+    },<br/>
+    {<br/>
+      "x": 20,<br/>
+      "y": -50,<br/>
+      "label": "theLabel2"<br/>
+    },<br/>
+    {<br/>
+      "x": 30,<br/>
+      "y": 50,<br/>
+      "label": "theLabel3"<br/>
+    },<br/>
+    {<br/>
+      "x": 40,<br/>
+      "y": 100,<br/>
+      "label": "label 4"<br/>
+    }<br/>
+  ]<br/>
+}<br/>
+
