@@ -13,17 +13,27 @@
         <header>
             <div class="content-wrapper">
                 <div class="float-left">
-                    <p class="site-title">@Html.ActionLink("Power Analysis - Home", "Index", "Home")</p>
+                    <p class="site-title">@Html.ActionLink("Power Analysis", "Index", "Home")</p>
                 </div>
-                <div class="float-right">
-                </div>
+				<div class="float-right">
+                   <nav>
+                        <ul id="menu">
+                            <li>@Html.ActionLink("MACs", "Index", "Mac")</li>
+                            <li>@Html.ActionLink("Home", "Index", "Home")</li>
+                        </ul>
+                    </nav>
+ 					
+				</div>
             </div>
         </header>
 		
-        <div id="body">
-			@RenderBody()
+       <div id="body">
+            @RenderSection("featured", required: false)
+            <section class="content-wrapper main-content clear-fix">
+                @RenderBody()
+            </section>
         </div>
-
+ 
 		@RenderSection("scripts", required: false)
 	</body>
 </html>
