@@ -50,18 +50,6 @@ namespace PowerAnalysis.Controllers
 		{
 			var chart = RavenSession.Load<Chart>("chart/" + id);
 
-
-			//var chart = new Chart
-			//                {
-			//                    Items = new[]
-			//                                {
-			//                                    new ChartItem() {x = 10, y = -200, label = "theLabel1"},
-			//                                    new ChartItem() {x = 20, y = -50, label = "theLabel2"},
-			//                                    new ChartItem() {x = 30, y = 50, label = "theLabel3"},
-			//                                    new ChartItem() {x = 40, y = 100, label = "theLabel4"}
-			//                                }
-			//                };
-
 			return View(chart);
 		}
 
@@ -76,13 +64,13 @@ namespace PowerAnalysis.Controllers
 			// Verify that the user selected a file
 			if (file != null && file.ContentLength > 0)
 			{
-					using (StreamReader reader = new StreamReader(file.InputStream))
-					{
-						string text = reader.ReadToEnd();
-						var chart = JsonConvert.DeserializeObject<Chart>(text);
-						Validate(chart);
-						chart.Id = "chart/" + chart.Name;
-						this.RavenSession.Store(chart);
+				using (StreamReader reader = new StreamReader(file.InputStream))
+				{
+					string text = reader.ReadToEnd();
+					var chart = JsonConvert.DeserializeObject<Chart>(text);
+					Validate(chart);
+					chart.Id = "chart/" + chart.Name;
+					this.RavenSession.Store(chart);
 				}
 			}
 			// redirect back to the index action to show the form once again
