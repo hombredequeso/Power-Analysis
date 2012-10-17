@@ -3,6 +3,7 @@ using System.IO;
 using System.Web;
 using System.Web.Mvc;
 using System.Linq;
+using System.Web.Routing;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -46,9 +47,9 @@ namespace PowerAnalysis.Controllers
 			return View(existingCharts);
 		}
 
-		public ActionResult Set(string id)
+		public ActionResult Set(int id)
 		{
-			var chart = RavenSession.Load<Chart>("chart/" + id);
+			var chart = RavenSession.Load<Chart>("charts/" + id);
 
 			return View(chart);
 		}
@@ -62,26 +63,43 @@ namespace PowerAnalysis.Controllers
 		public ActionResult Load(HttpPostedFileBase file)
 		{
 			// Verify that the user selected a file
-			if (file != null && file.ContentLength > 0)
+			Chart chart;
+			try
 			{
-				using (StreamReader reader = new StreamReader(file.InputStream))
+				if (file != null && file.ContentLength > 0)
 				{
-					string text = reader.ReadToEnd();
-					var chart = JsonConvert.DeserializeObject<Chart>(text);
-					Validate(chart);
-					chart.Id = "chart/" + chart.Name;
-					this.RavenSession.Store(chart);
+					using (StreamReader reader = new StreamReader(file.InputStream))
+					{
+						string text = reader.ReadToEnd();
+						chart = JsonConvert.DeserializeObject<Chart>(text);
+						Validate(chart);
+						this.RavenSession.Store(chart);
+						return RedirectToAction("Set", "Mac", new RouteValueDictionary() { { "id", chart.Id.Substring(7) } });
+					}
+				}
+				else
+				{
+					TempData["Message"] = "Error loading file: there was no file, or it had no contents.";
+					return View();
 				}
 			}
-			// redirect back to the index action to show the form once again
-			return RedirectToAction("Index");
+			catch (JsonReaderException ex)
+			{
+				TempData["Message"] = string.Format("Error loading file: {0}", ex.Message);
+				return View();
+			}
+			catch (InvalidChartException ice)
+			{
+				TempData["Message"] = string.Format("Error loading file: {0}", ice.Message);
+				return View();
+			}
 		}
 
 		private void Validate(Chart chart)
 		{
 			if (string.IsNullOrWhiteSpace(chart.Name))
 			{
-				throw new InvalidChartException("Name cannot be empty. It must be a valid word in a url.");
+				throw new InvalidChartException("Name cannot be empty.");
 			}
 			if (chart.Items.Count() == 0)
 			{
