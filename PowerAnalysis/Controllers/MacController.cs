@@ -62,8 +62,6 @@ namespace PowerAnalysis.Controllers
 		[HttpPost]
 		public ActionResult Load(HttpPostedFileBase file)
 		{
-			// Verify that the user selected a file
-			Chart chart;
 			try
 			{
 				if (file != null && file.ContentLength > 0)
@@ -71,17 +69,14 @@ namespace PowerAnalysis.Controllers
 					using (StreamReader reader = new StreamReader(file.InputStream))
 					{
 						string text = reader.ReadToEnd();
-						chart = JsonConvert.DeserializeObject<Chart>(text);
+						Chart chart = JsonConvert.DeserializeObject<Chart>(text);
 						Validate(chart);
-						this.RavenSession.Store(chart);
-						return RedirectToAction("Set", "Mac", new RouteValueDictionary() { { "id", chart.Id.Substring(7) } });
+						RavenSession.Store(chart);
+						return RedirectToAction("Set", "Mac", new RouteValueDictionary { { "id", chart.Id.Substring(7) } });
 					}
 				}
-				else
-				{
-					TempData["Message"] = "Error loading file: there was no file, or it had no contents.";
-					return View();
-				}
+				TempData["Message"] = "Error loading file: there was no file, or it had no contents.";
+				return View();
 			}
 			catch (JsonReaderException ex)
 			{
@@ -101,7 +96,7 @@ namespace PowerAnalysis.Controllers
 			{
 				throw new InvalidChartException("Name cannot be empty.");
 			}
-			if (chart.Items.Count() == 0)
+			if (!chart.Items.Any())
 			{
 				throw new InvalidChartException("The chart must have at least one item in it.");
 			}

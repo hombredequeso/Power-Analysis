@@ -1,0 +1,15 @@
+﻿@model dynamic
+
+@{
+	ViewBag.Title = "PowerAnalysis: Test Page";
+}
+
+<h2>Power Analysis, Test Page (not for public consumption!)</h2>
+
+
+@Html.ActionLink("Throw an exception", "Uncaughtexception", new { id = 777 })
+
+@using (Html.BeginForm("DoError", "Test", FormMethod.Post))
+{
+	 <input type="submit" value="Submit" />
+}
