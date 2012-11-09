@@ -30,7 +30,7 @@
 				<td><span data-bind="text: label"></span></td>
 				<td><input data-bind="value: x" class="chartInput"/></td>
 				<td>=<span data-bind="text: xCalc"></span></td>
-				<td><input data-bind="numericValue: y"  class="chartInput"/></td>
+				<td><input data-bind="value: y"  class="chartInput"/></td>
 				<td>=<span data-bind="text: yCalc"></span></td>
 			</tr>
 		</tbody>
@@ -104,7 +104,7 @@ $(function() {
 		}, vmItems[i]);
 		vmItems[i].yCalc = ko.computed(function () {
 			var yPreparsed = this.y().toString();
-			var yParsed = yPreparsed.replace("e", vm.elecPerMw());
+			var yParsed = yPreparsed.replace(/e/g, vm.elecPerMw());
 			return eval(yParsed);
 		}, vmItems[i]);
 	}
@@ -120,14 +120,14 @@ $(function() {
 				x: currentX,
 				y: 0,
 				width: e.xCalc,
-				height: e.y
+				height: e.yCalc
 			});
 			currentX += e.xCalc;
 			return result;
 		};
 
-		items.sort(function (a, b) { return a.y - b.y; });
 		var preProcessedItems = items.map(preProcess);
+		preProcessedItems.sort(function (a, b) { return a.height - b.height; });
 		var xInItemCoords = currentX;
 		var canvasX = 500;
 		var canvasRightBorder = 10;
@@ -135,7 +135,7 @@ $(function() {
 		var xScaling = canvasXForItems / xInItemCoords;
 
 
-		var yCoords = items.map(function (i) { return i.y; });
+		var yCoords = items.map(function (i) { return i.yCalc; });
 		var yMaxInItemCoords = Math.max.apply(Math, yCoords);
 		var yMinInItemCoords = Math.min.apply(Math, yCoords);
 		var yRange = yMaxInItemCoords - yMinInItemCoords;
