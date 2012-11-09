@@ -5,16 +5,60 @@
 	ViewBag.Title = "MAC set";
 }
 
-<h2>Chart Test</h2>
-<div>
-<canvas id="canvas" width="500" height="500"/>
+<h2>Chart Test: <span data-bind="text: name"></span></h2>
+<div  style="float:left">
+	<div>
+	<canvas id="canvas" width="500" height="500"/>
+	</div>
+	<div>
+		<button type="button" id="printCanvas">Print...</button>
+	</div>
 </div>
-<div>
-<button type="button" id="printCanvas">Print...</button>
+<div id="chartdataid"  style="float:right">
+	<table>
+		<thead>
+			<tr>
+				<td>Project</td>
+				<td></td>
+				<td>Mt CO2</td>
+				<td></td>
+				<td>$ / t CO2</td>
+			</tr>
+		</thead>
+		<tbody data-bind="foreach: items">
+			<tr>
+				<td><span data-bind="text: label"></span></td>
+				<td><input data-bind="value: x" class="chartInput"/></td>
+				<td>=<span data-bind="text: xCalc"></span></td>
+				<td><input data-bind="numericValue: y"  class="chartInput"/></td>
+				<td>=<span data-bind="text: yCalc"></span></td>
+			</tr>
+		</tbody>
+	</table>
+	<button data-bind="click: redraw">Redraw</button>
+</div>
+<div style="float:right">
+	<table>
+		<thead>
+			<tr>
+				<td><h3>Variables</h3></td>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>Cost of Electricty ($/GW) = e = </td>
+				<td><input class="chartInput" data-bind="value: elecPerMw"/></td>
+			</tr>
+		</tbody>
+	</table>
 </div>
 <script language="javascript">
 	
 $(function() {
+	
+		var canvas = document.getElementById("canvas");
+		var ctx = canvas.getContext("2d");
+
 
 	var line = function (a, b) {
 		ctx.beginPath();
@@ -26,153 +70,189 @@ $(function() {
 
 	var canvasXOffset = 50;
 	var xyz = @Html.Raw(Model.Serialize());
-
-	// Chart items
-//	var items = [
-//		{x:10, y: -150, label: 'Item1'}, 
-//		{x:20, y: -100, label: 'Item2abcdefg'}, 
-//		{x:10, y: -99, label: 'Item3somethingelse'}, 
-//		{x:10, y: -10, label: 'Item4isverylong'}, 
-//		{x:20, y: 20, label: 'Item5'}, 
-//		{x:10, y: 40, label: 'Item6'}, 
-//		{x:30, y: 70, label: 'Item7'}, 
-//		{x:20, y: 75, label: 'Item8'}, 
-//		{x:10, y: 80, label: 'Item9WhichIsLong'}, 
-//		{x:20, y: 140, label: 'Item10'}
-//	];
-	var items = xyz.items;		
-	// preprocess items:
-
-	var currentX = 0;
-	var preProcess = function (e) {
-		var result = $.extend({ }, e, {
-			x: currentX,
-			y: 0,
-			width: e.x,
-			height: e.y
-		});
-		currentX += e.x;
-		return result;
-	};
-
 	
-	var preProcessedItems = items.map(preProcess);
-	var xInItemCoords = currentX;
-	var canvasX = 500;
-	var canvasRightBorder = 10;
-	var canvasXForItems = canvasX - canvasXOffset - canvasRightBorder;
-	var xScaling = canvasXForItems / xInItemCoords;
 
-
-
-	var yCoords = items.map(function (i) { return i.y; });
-	var yMaxInItemCoords = Math.max.apply( Math, yCoords );
-	var yMinInItemCoords = Math.min.apply( Math, yCoords );
-	var yRange = yMaxInItemCoords - yMinInItemCoords;
-
-
-	var canvasY = 500;
-	var topBorder = 10, bottomBorder = 10, spaceForLabels = 20;
-	var yVpSpace = canvasY - topBorder - bottomBorder - (2 * spaceForLabels);
-	var yScaling = yVpSpace / yRange;
-
-	var chartValueToViewPortTransform = function (p) {
-		return $.extend({ }, p, {
-			x: p.x * xScaling,
-			y: p.y * -1 * yScaling,
-			width: p.width * xScaling,
-			height: p.height * -1 * yScaling
-		});
+	ko.bindingHandlers.numericValue = {
+		init : function(element, valueAccessor, allBindingsAccessor) {
+			var underlyingObservable = valueAccessor();
+			var interceptor = ko.dependentObservable({
+				read: underlyingObservable,
+				write: function(value) {
+					var x = ko.utils.stringTrim(value);
+					if (!isNaN(x) && x.length > 0) {
+						underlyingObservable(parseFloat(x));
+					} else {
+						underlyingObservable(0);
+						element.value = 0;
+					}
+				} 
+			});
+			ko.bindingHandlers.value.init(element, function() { return interceptor }, allBindingsAccessor);
+		},  
+		update : ko.bindingHandlers.value.update
 	};
 
-	var itemsInVpCoords = preProcessedItems.map(chartValueToViewPortTransform);
-
-	var drawItem = function (i) {
-		ctx.fillRect(i.x, i.y, i.width, i.height);
-		ctx.strokeRect(i.x, i.y, i.width, i.height);
-	};
-
-	var drawLabel = function (i) {
-		var endPos = i.lineEndPos;
-		line(i.lineStartPos, i.lineEndPos);
-		if (endPos.y > 0) {
-			ctx.textAlign = 'left';
-			ctx.textBaseline = 'middle';
-			ctx.fillText(i.label, endPos.x + lineToLabel, endPos.y);
-		} else {
-			ctx.textAlign = 'right';
-			ctx.textBaseline = 'middle';
-			ctx.fillText(i.label, endPos.x - lineToLabel, endPos.y);
-		}
-	};
-	
-	// split + and -
-	var count = itemsInVpCoords.length;
-	var currentPos = 0, breakPos = 0;
-	while (itemsInVpCoords[currentPos].height > 0 && currentPos < count) {
-		++breakPos;
-		++currentPos;
+	var vm = ko.mapping.fromJS(xyz);
+	vm.elecPerMw = ko.observable(10);
+	var itemCount = vm.items().length;
+	var vmItems = vm.items();
+	for (var i=0;i<itemCount;i++) {
+		vmItems[i].xCalc = ko.computed(function () {
+			var xPreparsed = this.x().toString();
+			var xParsed = xPreparsed.replace(/e/g, vm.elecPerMw());
+			return eval(xParsed);
+		}, vmItems[i]);
+		vmItems[i].yCalc = ko.computed(function () {
+			var yPreparsed = this.y().toString();
+			var yParsed = yPreparsed.replace("e", vm.elecPerMw());
+			return eval(yParsed);
+		}, vmItems[i]);
 	}
-	var positiveItems = itemsInVpCoords.slice(0, breakPos);
-	var negItems = itemsInVpCoords.slice(breakPos);
-	
-	var labelLineLength = 20;
-	var lineToLabel = 2;
-	var minLabelDistance = 20;
-	var lastLabel = 0;
-	var calculateLabelPos = function (i) {
-		var midPointX = i.x + (i.width / 2);
-		i.lineStartPos = { x: midPointX, y: i.height };
-		i.lineEndPos = {
-			x: midPointX,
-			y: i.height > 0? i.height + labelLineLength: i.height - labelLineLength
+
+
+	var renderChart = function () {
+		var items = ko.mapping.toJS(vm.items);
+		
+
+		var currentX = 0;
+		var preProcess = function (e) {
+			var result = $.extend({ }, e, {
+				x: currentX,
+				y: 0,
+				width: e.xCalc,
+				height: e.y
+			});
+			currentX += e.xCalc;
+			return result;
 		};
-		if (lastLabel + minLabelDistance > i.lineEndPos.y) {
-			i.lineEndPos.y = lastLabel + minLabelDistance;
-		}
-		lastLabel = i.lineEndPos.y;
-	};
 
-	positiveItems.reverse();
-	positiveItems.forEach(calculateLabelPos);
+		items.sort(function (a, b) { return a.y - b.y; });
+		var preProcessedItems = items.map(preProcess);
+		var xInItemCoords = currentX;
+		var canvasX = 500;
+		var canvasRightBorder = 10;
+		var canvasXForItems = canvasX - canvasXOffset - canvasRightBorder;
+		var xScaling = canvasXForItems / xInItemCoords;
 
-	var calculateNegLabelPos = function (i) {
-		var midPointX = i.x + (i.width / 2);
-		i.lineStartPos = { x: midPointX, y: i.height };
-		i.lineEndPos = {
-			x: midPointX,
-			y: i.height - labelLineLength
+
+		var yCoords = items.map(function (i) { return i.y; });
+		var yMaxInItemCoords = Math.max.apply(Math, yCoords);
+		var yMinInItemCoords = Math.min.apply(Math, yCoords);
+		var yRange = yMaxInItemCoords - yMinInItemCoords;
+
+
+		var canvasY = 500;
+		var topBorder = 10, bottomBorder = 10, spaceForLabels = 20;
+		var yVpSpace = canvasY - topBorder - bottomBorder - (2 * spaceForLabels);
+		var yScaling = yVpSpace / yRange;
+
+		var chartValueToViewPortTransform = function (p) {
+			return $.extend({ }, p, {
+				x: p.x * xScaling,
+				y: p.y * -1 * yScaling,
+				width: p.width * xScaling,
+				height: p.height * -1 * yScaling
+			});
 		};
-		if (lastLabel - minLabelDistance < i.lineEndPos.y) {
-			i.lineEndPos.y = lastLabel - minLabelDistance;
+
+		var itemsInVpCoords = preProcessedItems.map(chartValueToViewPortTransform);
+
+		var drawItem = function (i) {
+			ctx.fillRect(i.x, i.y, i.width, i.height);
+			ctx.strokeRect(i.x, i.y, i.width, i.height);
+		};
+
+		var drawLabel = function (i) {
+			var endPos = i.lineEndPos;
+			line(i.lineStartPos, i.lineEndPos);
+			if (endPos.y > 0) {
+				ctx.textAlign = 'left';
+				ctx.textBaseline = 'middle';
+				ctx.fillText(i.label, endPos.x + lineToLabel, endPos.y);
+			} else {
+				ctx.textAlign = 'right';
+				ctx.textBaseline = 'middle';
+				ctx.fillText(i.label, endPos.x - lineToLabel, endPos.y);
+			}
+		};
+
+		// split + and -
+		var count = itemsInVpCoords.length;
+		var currentPos = 0, breakPos = 0;
+		while (itemsInVpCoords[currentPos].height > 0 && currentPos < count) {
+			++breakPos;
+			++currentPos;
 		}
-		lastLabel = i.lineEndPos.y;
+		var positiveItems = itemsInVpCoords.slice(0, breakPos);
+		var negItems = itemsInVpCoords.slice(breakPos);
+
+		var labelLineLength = 20;
+		var lineToLabel = 2;
+		var minLabelDistance = 20;
+		var lastLabel = 0;
+		var calculateLabelPos = function (i) {
+			var midPointX = i.x + (i.width / 2);
+			i.lineStartPos = { x: midPointX, y: i.height };
+			i.lineEndPos = {
+				x: midPointX,
+				y: i.height > 0 ? i.height + labelLineLength : i.height - labelLineLength
+			};
+			if (lastLabel + minLabelDistance > i.lineEndPos.y) {
+				i.lineEndPos.y = lastLabel + minLabelDistance;
+			}
+			lastLabel = i.lineEndPos.y;
+		};
+
+		positiveItems.reverse();
+		positiveItems.forEach(calculateLabelPos);
+
+		var calculateNegLabelPos = function (i) {
+			var midPointX = i.x + (i.width / 2);
+			i.lineStartPos = { x: midPointX, y: i.height };
+			i.lineEndPos = {
+				x: midPointX,
+				y: i.height - labelLineLength
+			};
+			if (lastLabel - minLabelDistance < i.lineEndPos.y) {
+				i.lineEndPos.y = lastLabel - minLabelDistance;
+			}
+			lastLabel = i.lineEndPos.y;
+		};
+		lastLabel = 0;
+		negItems.forEach(calculateNegLabelPos);
+
+		ctx.clearRect(0, 0, canvasX, canvasY);
+		ctx.save();
+
+		var yTranslation = (yMaxInItemCoords * yScaling) + topBorder + spaceForLabels;
+		ctx.translate(canvasXOffset, yTranslation);
+
+		// Draw axis
+		line({ x: 0, y: -yTranslation }, { x: 0, y: (canvasY - yTranslation) });
+		line({ x: 0, y: 0 }, { x: 450, y: 0 });
+
+
+		ctx.fillStyle = 'green';
+		ctx.strokeStyle = 'black';
+		itemsInVpCoords.forEach(drawItem);
+		ctx.fillStyle = 'black';
+		itemsInVpCoords.forEach(drawLabel);
+
+		ctx.restore();
 	};
-	lastLabel = 0;
-	negItems.forEach(calculateNegLabelPos);
-
-	
-	var canvas = document.getElementById("canvas");
-	var ctx = canvas.getContext("2d");
-	
-	var yTranslation = (yMaxInItemCoords * yScaling) + topBorder + spaceForLabels;
-	ctx.translate(canvasXOffset, yTranslation);
-
-	// Draw axis
-	line({x:0, y:-yTranslation}, {x:0, y:(canvasY-yTranslation)});
-	line({x:0, y:0}, {x:450, y:0});
+	renderChart();
 
 
-	ctx.fillStyle = 'green';
-	ctx.strokeStyle = 'black';
-	itemsInVpCoords.forEach(drawItem);
-	ctx.fillStyle = 'black';
-	itemsInVpCoords.forEach(drawLabel);
-	
 	$('#printCanvas').bind('click', function () {
+		var x = vm;
 		var img = canvas.toDataURL("image/png");
 		document.write('<img src="'+img+'"/>');
 	});
+
+	vm.redraw = renderChart;
+
+	ko.applyBindings(vm);
+
 });
 
 
