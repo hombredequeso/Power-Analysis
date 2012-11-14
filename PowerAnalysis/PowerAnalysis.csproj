@@ -221,6 +221,7 @@
     <Content Include="Scripts\knockout.mapping.js" />
     <Content Include="Scripts\knockout.mapping.min.js" />
     <Content Include="Scripts\maccurve.js" />
+    <Content Include="Scripts\macsetvm.js" />
     <Content Include="Scripts\modernizr-2.5.3.js" />
     <Content Include="Scripts\namespace.js" />
     <Content Include="Scripts\_references.js" />

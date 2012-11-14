@@ -24,7 +24,8 @@ namespace PowerAnalysis
 
 			bundles.Add(new ScriptBundle("~/bundles/hdq").Include(
 				"~/Scripts/namespace.js",
-				"~/Scripts/maccurve.js"
+				"~/Scripts/maccurve.js",
+				"~/Scripts/macsetvm.js"
 				));
 
 			// Use the development version of Modernizr to develop with and learn from. Then, when you're

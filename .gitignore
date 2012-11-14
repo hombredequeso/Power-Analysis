@@ -1,3 +1,4 @@
+
 #OS junk files
 [Tt]humbs.db
 *.DS_Store
@@ -62,3 +63,9 @@ packages/
 
 #Test files
 *.testsettings
+
+#emacs backup
+*.*~
+
+# test framework
+JsTestDriver.jar
