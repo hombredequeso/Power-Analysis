@@ -72,28 +72,11 @@ $(function() {
 	var xyz = @Html.Raw(Model.Serialize());
 	
 
-	ko.bindingHandlers.numericValue = {
-		init : function(element, valueAccessor, allBindingsAccessor) {
-			var underlyingObservable = valueAccessor();
-			var interceptor = ko.dependentObservable({
-				read: underlyingObservable,
-				write: function(value) {
-					var x = ko.utils.stringTrim(value);
-					if (!isNaN(x) && x.length > 0) {
-						underlyingObservable(parseFloat(x));
-					} else {
-						underlyingObservable(0);
-						element.value = 0;
-					}
-				} 
-			});
-			ko.bindingHandlers.value.init(element, function() { return interceptor }, allBindingsAccessor);
-		},  
-		update : ko.bindingHandlers.value.update
-	};
 
 	var vm = ko.mapping.fromJS(xyz);
 	vm.elecPerMw = ko.observable(10);
+
+
 	var itemCount = vm.items().length;
 	var vmItems = vm.items();
 	for (var i=0;i<itemCount;i++) {
