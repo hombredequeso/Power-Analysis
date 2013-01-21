@@ -100,7 +100,17 @@ namespace PowerAnalysis.Controllers
 		{
 			string connString = ConfigurationManager.ConnectionStrings["RavenDB"].ConnectionString;
 			int httpStart = connString.IndexOf("http");
-			string url = connString.Substring(httpStart).Trim() + "/stats";
+			int httpEnd = connString.IndexOf(';');
+			string url = connString.Substring(httpStart);
+			if (httpEnd != -1)
+			{
+				string ending = connString.Substring(httpEnd);
+				url = url.Substring(0, httpEnd - httpStart) + "/stats" + ending;
+			}
+			else
+			{
+				url = url.Trim() + "/stats";
+			}
 
 			HttpWebRequest WebReq = (HttpWebRequest)WebRequest.Create(url);
 			WebReq.Method = "GET";
