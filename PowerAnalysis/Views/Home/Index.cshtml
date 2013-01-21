@@ -7,3 +7,19 @@
 <h2>Power Analysis, Test Application (alpha version)</h2>
 
 <p>@Html.ActionLink("Go to MAC's", "Index", "Mac")</p>
+
+
+
+<p>
+			@{
+				var user = ViewContext.HttpContext.User;
+				if (user != null && user.Identity != null && user.Identity.IsAuthenticated) {
+					@:logged in as @Html.ActionLink(user.Identity.Name, "Show", "User")
+					using (Html.BeginForm("Destroy", "Session")) {
+						<button type="submit">Sign out</button>
+					}
+				} else {
+					@Html.ActionLink("log in", "New", "Session", new { returnUrl = Request.Path }, null) @:/ @Html.ActionLink("sign up", "New", "User")
+				}
+			}
+		</p>
