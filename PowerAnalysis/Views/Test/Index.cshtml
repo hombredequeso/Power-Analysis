@@ -6,6 +6,8 @@
 
 <h2>Power Analysis, Test Page (not for public consumption!)</h2>
 
+<p>Current version: @ViewBag.Version</p>
+<p>Db Status: @Html.Raw(ViewBag.DbStatus)</p>
 
 @Html.ActionLink("Throw an exception", "Uncaughtexception", new { id = 777 })
 
