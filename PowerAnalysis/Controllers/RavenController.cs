@@ -1,7 +1,8 @@
 ﻿using System.Web.Mvc;
+using PowerAnalysis;
 using Raven.Client;
 
-namespace PowerAnalysis.Controllers
+namespace HDC.PowerAnalysis.Web.Controllers
 {
 	public abstract class RavenController : Controller
 	{

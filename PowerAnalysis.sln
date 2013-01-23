@@ -10,6 +10,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{6F4751
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PowerAnalysis.Domains", "PowerAnalysis.Domains\PowerAnalysis.Domains.csproj", "{B635907A-CE81-4D86-8D7A-AE8F1486C86C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PowerAnalysis.Domains.UnitTests", "PowerAnalysis.Domains.UnitTests\PowerAnalysis.Domains.UnitTests.csproj", "{0EFB3405-B8E6-4A72-BEA8-33401D4919B4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,6 +24,14 @@ Global
 		{015CABC0-8929-4302-9387-7345FF7079D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{015CABC0-8929-4302-9387-7345FF7079D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{015CABC0-8929-4302-9387-7345FF7079D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B635907A-CE81-4D86-8D7A-AE8F1486C86C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B635907A-CE81-4D86-8D7A-AE8F1486C86C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B635907A-CE81-4D86-8D7A-AE8F1486C86C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B635907A-CE81-4D86-8D7A-AE8F1486C86C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0EFB3405-B8E6-4A72-BEA8-33401D4919B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0EFB3405-B8E6-4A72-BEA8-33401D4919B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0EFB3405-B8E6-4A72-BEA8-33401D4919B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0EFB3405-B8E6-4A72-BEA8-33401D4919B4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

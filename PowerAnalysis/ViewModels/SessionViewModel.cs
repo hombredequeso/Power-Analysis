@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace PowerAnalysis.ViewModels
+namespace HDC.PowerAnalysis.Web.ViewModels
 {
 	public class SessionViewModel
 	{

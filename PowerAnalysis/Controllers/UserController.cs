@@ -1,13 +1,11 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using AppHarbor.Web.Security;
-using PowerAnalysis.Controllers;
-using PowerAnalysis.Models;
-using PowerAnalysis.ViewModels;
+using HDC.PowerAnalysis.Security;
+using HDC.PowerAnalysis.Web.ViewModels;
 
-namespace AuthenticationExample.Web.Controllers
+namespace HDC.PowerAnalysis.Web.Controllers
 {
 	public class UserController : RavenController
 	{
@@ -36,11 +34,7 @@ namespace AuthenticationExample.Web.Controllers
 
 			if (ModelState.IsValid)
 			{
-				var user = new User
-				{
-					Username = userInputModel.Username,
-					Password = HashPassword(userInputModel.Password),
-				};
+				var user = new User(userInputModel.Username, HashPassword(userInputModel.Password), new string[0]);
 
 				RavenSession.Store(user);
 

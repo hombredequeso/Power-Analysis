@@ -8,7 +8,7 @@ using System.Text;
 using System.Web.Mvc;
 using Newtonsoft.Json.Linq;
 
-namespace PowerAnalysis.Controllers
+namespace HDC.PowerAnalysis.Web.Controllers
 {
 	class JsonHelper
 	{

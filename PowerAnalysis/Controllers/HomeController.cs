@@ -1,6 +1,6 @@
 ﻿using System.Web.Mvc;
 
-namespace PowerAnalysis.Controllers
+namespace HDC.PowerAnalysis.Web.Controllers
 {
 	public class HomeController : Controller
 	{

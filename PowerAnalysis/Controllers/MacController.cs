@@ -7,7 +7,7 @@ using System.Web.Routing;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace PowerAnalysis.Controllers
+namespace HDC.PowerAnalysis.Web.Controllers
 {
 	public class ChartItem
 	{

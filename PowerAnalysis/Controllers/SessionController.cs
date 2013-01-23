@@ -3,10 +3,10 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using AppHarbor.Web.Security;
-using PowerAnalysis.Models;
-using PowerAnalysis.ViewModels;
+using HDC.PowerAnalysis.Security;
+using HDC.PowerAnalysis.Web.ViewModels;
 
-namespace PowerAnalysis.Controllers
+namespace HDC.PowerAnalysis.Web.Controllers
 {
     public class SessionController : RavenController
     {
