@@ -8,7 +8,8 @@ using HDC.PowerAnalysis.Web.ViewModels;
 
 namespace HDC.PowerAnalysis.Web.Controllers
 {
-    public class SessionController : RavenController
+	[RequireHttps]
+	public class SessionController : RavenController
     {
 		private readonly IAuthenticator _authenticator;
 		private const string errorMessage = "Invalid username or password";
