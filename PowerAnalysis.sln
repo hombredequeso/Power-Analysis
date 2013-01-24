@@ -14,11 +14,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PowerAnalysis.Domains", "Po
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PowerAnalysis.Domains.UnitTests", "PowerAnalysis.Domains.UnitTests\PowerAnalysis.Domains.UnitTests.csproj", "{0EFB3405-B8E6-4A72-BEA8-33401D4919B4}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utilities", "Utilities", "{168346A1-8919-47AC-A363-73BF8FCEF122}"
-	ProjectSection(SolutionItems) = preProject
-		Initialize.Elmah.sql = Initialize.Elmah.sql
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
