@@ -1,7 +1,10 @@
-﻿using System.Web.Http;
+﻿using System.Configuration;
+using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
+using HDC.PowerAnalysis.Security;
+using HDC.PowerAnalysis.Utility;
 using PowerAnalysis;
 using Raven.Client;
 using Raven.Client.Document;
@@ -19,6 +22,10 @@ namespace HDC.PowerAnalysis.Web
 			RouteConfig.RegisterRoutes(RouteTable.Routes);
 			BundleConfig.RegisterBundles(BundleTable.Bundles);
 			InitializeRavenDb();
+			string defaultSiteAdministratorPassword = ConfigurationManager.AppSettings["DefaultSiteAdministratorPassword"];
+			if (string.IsNullOrWhiteSpace(defaultSiteAdministratorPassword))
+				defaultSiteAdministratorPassword = "defaultSiteAdministratorPassword";
+			SecuritySeeder.Run(RavenStore, defaultSiteAdministratorPassword);
 		}
 
 		public static IDocumentStore RavenStore;

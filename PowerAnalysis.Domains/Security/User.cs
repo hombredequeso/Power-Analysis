@@ -12,6 +12,7 @@ namespace HDC.PowerAnalysis.Security
 			if (password == null) throw new ArgumentNullException("password");
 			if (username.Count() < 3) throw new ArgumentException("UserName must be at least 3 characters long", "username");
 			if (password.Count() < 10) throw new ArgumentException("Password must be at least 10 characters long", "password");
+			Id = "users/" + username;
 			Username = username;
 			Password = password;
 			_roles = roles.ToList();

@@ -5,6 +5,7 @@ using System.Web.Mvc;
 using AppHarbor.Web.Security;
 using HDC.PowerAnalysis.Security;
 using HDC.PowerAnalysis.Web.ViewModels;
+using Encryption = HDC.PowerAnalysis.Utility.Encryption;
 
 namespace HDC.PowerAnalysis.Web.Controllers
 {
@@ -42,7 +43,7 @@ namespace HDC.PowerAnalysis.Web.Controllers
 
 			if (ModelState.IsValid)
 			{
-				if (!BCrypt.Net.BCrypt.Verify(sessionViewModel.Password, user.Password))
+				if (!Encryption.Verify(sessionViewModel.Password, user.Password))
 				{
 					ModelState.AddModelError(string.Empty, errorMessage);
 				}

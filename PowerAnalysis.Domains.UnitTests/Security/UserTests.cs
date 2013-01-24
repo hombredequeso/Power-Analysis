@@ -26,7 +26,7 @@ namespace PowerAnalysis.Domains.UnitTests.Security
 			// Assert
 			user.ShouldBeEquivalentTo(new
 										{
-											Id = (string)null,
+											Id = "users/" + userName,
 											Username = userName,
 											Password = password,
 											Roles = roles

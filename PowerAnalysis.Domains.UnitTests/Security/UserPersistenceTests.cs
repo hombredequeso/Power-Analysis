@@ -29,7 +29,7 @@ namespace PowerAnalysis.Domains.UnitTests.Security
 				// Assert
 				using (var session = dataStore.OpenSession())
 				{
-					var retrievedUser = session.Load<User>(user.Id);
+					var retrievedUser = session.Load<User>("users/" + user.Username);
 					retrievedUser.ShouldBeEquivalentTo(user);
 				}
 			}

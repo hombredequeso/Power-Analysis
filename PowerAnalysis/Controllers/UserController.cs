@@ -4,6 +4,7 @@ using System.Web.Mvc;
 using AppHarbor.Web.Security;
 using HDC.PowerAnalysis.Security;
 using HDC.PowerAnalysis.Web.ViewModels;
+using Encryption = HDC.PowerAnalysis.Utility.Encryption;
 
 namespace HDC.PowerAnalysis.Web.Controllers
 {
@@ -35,7 +36,7 @@ namespace HDC.PowerAnalysis.Web.Controllers
 
 			if (ModelState.IsValid)
 			{
-				var user = new User(userInputModel.Username, HashPassword(userInputModel.Password), new string[0]);
+				var user = new User(userInputModel.Username, Encryption.HashPassword(userInputModel.Password), new string[0]);
 
 				RavenSession.Store(user);
 
@@ -60,11 +61,5 @@ namespace HDC.PowerAnalysis.Web.Controllers
 
 		//    return View(user);
 		//}
-
-		private static string HashPassword(string value)
-		{
-			string salt = BCrypt.Net.BCrypt.GenerateSalt();
-			return BCrypt.Net.BCrypt.HashPassword(value, salt);
-		}
 	}
 }
