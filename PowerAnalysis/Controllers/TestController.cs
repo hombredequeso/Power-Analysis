@@ -87,6 +87,7 @@ namespace HDC.PowerAnalysis.Web.Controllers
 
 	public class TestController : Controller
 	{
+		[Authorize(Roles = "siteadministrator")]
 		public ActionResult Index()
 		{
 			ViewBag.Message = "Test Application";

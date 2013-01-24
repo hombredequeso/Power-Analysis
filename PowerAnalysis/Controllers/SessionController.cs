@@ -51,7 +51,7 @@ namespace HDC.PowerAnalysis.Web.Controllers
 
 			if (ModelState.IsValid)
 			{
-				_authenticator.SetCookie(user.Username, false, new string[] { });
+				_authenticator.SetCookie(user.Username, false, user.Roles.ToArray());
 				var returnUrl = sessionViewModel.ReturnUrl;
 				if (returnUrl != null)
 				{

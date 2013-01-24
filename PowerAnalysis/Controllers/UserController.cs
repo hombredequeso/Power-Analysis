@@ -41,7 +41,7 @@ namespace HDC.PowerAnalysis.Web.Controllers
 				RavenSession.Store(user);
 
 				//_authenticator.SetCookie(user.Username);
-				_authenticator.SetCookie(user.Username, false, new string[] { "Administrator" });
+				_authenticator.SetCookie(user.Username, false, user.Roles.ToArray());
 
 				return RedirectToAction("Index", "Home");
 			}
