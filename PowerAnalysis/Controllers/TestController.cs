@@ -4,6 +4,7 @@ using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Mail;
 using System.Text;
 using System.Web.Mvc;
 using Newtonsoft.Json.Linq;
@@ -150,6 +151,15 @@ namespace HDC.PowerAnalysis.Web.Controllers
 		public ActionResult Uncaughtexception(int id)
 		{
 			throw new Exception("This is an uncaught exception.");
+		}
+
+		public void TestActionA()
+		{
+			var smtpClient = new SmtpClient();
+			string fromAddress = ConfigurationManager.AppSettings["WebSiteEmail"];
+			string toAddress = ConfigurationManager.AppSettings["SiteAdministratorEmail"];
+
+			smtpClient.Send(new MailMessage(fromAddress, toAddress, "Test Email", "TestActionA was performed."));
 		}
 
 		[HttpPost]

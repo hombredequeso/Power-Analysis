@@ -10,6 +10,7 @@
 <p>Db Status: @Html.Raw(ViewBag.DbStatus)</p>
 
 @Html.ActionLink("Throw an exception", "Uncaughtexception", new { id = 777 })
+@Html.ActionLink("Test Action A", "TestActionA")
 
 @using (Html.BeginForm("DoError", "Test", FormMethod.Post))
 {
