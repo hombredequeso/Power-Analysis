@@ -8,7 +8,7 @@ using HDC.PowerAnalysis.Web.ViewModels;
 
 namespace HDC.PowerAnalysis.Web.Controllers
 {
-	[RequireHttps]
+	[AppHarbor.Web.RequireHttps]
 	public class SessionController : RavenController
     {
 		private readonly IAuthenticator _authenticator;

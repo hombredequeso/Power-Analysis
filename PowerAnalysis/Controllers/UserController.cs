@@ -7,7 +7,7 @@ using HDC.PowerAnalysis.Web.ViewModels;
 
 namespace HDC.PowerAnalysis.Web.Controllers
 {
-	[RequireHttps]
+	[AppHarbor.Web.RequireHttps]
 	public class UserController : RavenController
 	{
 		private readonly IAuthenticator _authenticator;
