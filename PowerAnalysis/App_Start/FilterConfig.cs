@@ -1,5 +1,6 @@
 ﻿using System.Web;
 using System.Web.Mvc;
+using HDC.PowerAnalysis.Web.Attributes;
 
 namespace PowerAnalysis
 {
@@ -8,7 +9,7 @@ namespace PowerAnalysis
 		public static void RegisterGlobalFilters(GlobalFilterCollection filters)
 		{
 			filters.Add(new HandleErrorAttribute());
-			filters.Add(new System.Web.Mvc.AuthorizeAttribute());
+			filters.Add(new CustomAuthorizeAttribute());
 			filters.Add(new AppHarbor.Web.RequireHttpsAttribute());
 		}
 	}

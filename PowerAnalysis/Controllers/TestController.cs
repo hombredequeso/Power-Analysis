@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Text;
 using System.Web.Mvc;
+using HDC.PowerAnalysis.Web.Attributes;
 using Newtonsoft.Json.Linq;
 
 namespace HDC.PowerAnalysis.Web.Controllers
@@ -14,7 +13,7 @@ namespace HDC.PowerAnalysis.Web.Controllers
 
 	public class TestController : Controller
 	{
-		[Authorize(Roles = "siteadministrator")]
+		[CustomAuthorize(Roles = "siteadministrator")]
 		public ActionResult Index()
 		{
 			ViewBag.Message = "Test Application";

@@ -1,0 +1,23 @@
+﻿@model System.Collections.Generic.IEnumerable<HDC.PowerAnalysis.Web.ViewModels.UserAdminViewModel>
+
+@{
+	ViewBag.Title = "PowerAnalysis: User Administration";
+}
+
+<h2>User Administration</h2>
+
+<table>
+	<thead>
+		<th>Username</th>
+		<th>Reset Password</th>
+	</thead>
+	<tbody>
+	@foreach (var item in Model) {
+		<tr>
+			<td>@Html.DisplayFor(modelItem => item.Username)</td>
+			<td>@Html.ActionLink("Reset", "ResetPassword", new { userName = item.Username })</td>
+		</tr>
+	}
+	</tbody>
+</table>
+
