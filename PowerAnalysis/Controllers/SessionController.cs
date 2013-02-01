@@ -9,7 +9,6 @@ using Encryption = HDC.PowerAnalysis.Utility.Encryption;
 
 namespace HDC.PowerAnalysis.Web.Controllers
 {
-	[AppHarbor.Web.RequireHttps]
 	public class SessionController : RavenController
     {
 		private readonly IAuthenticator _authenticator;
@@ -23,12 +22,14 @@ namespace HDC.PowerAnalysis.Web.Controllers
 		}
 
 		[HttpGet]
+		[AllowAnonymous]
 		public ActionResult New(string returnUrl)
 		{
 			return View(new SessionViewModel { ReturnUrl = returnUrl });
 		}
 
 		[HttpPost]
+		[AllowAnonymous]
 		public ActionResult Create(SessionViewModel sessionViewModel)
 		{
 			User user = null;

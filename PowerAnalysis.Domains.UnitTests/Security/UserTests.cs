@@ -26,7 +26,7 @@ namespace PowerAnalysis.Domains.UnitTests.Security
 			// Assert
 			user.ShouldBeEquivalentTo(new
 										{
-											Id = "users/" + userName,
+											Id = (string)null,
 											Username = userName,
 											Password = password,
 											Roles = roles
@@ -42,6 +42,26 @@ namespace PowerAnalysis.Domains.UnitTests.Security
 		{
 			Assert.Throws(exceptionType, () => new User(userName, password, new string[0]));
 		}
+
+		[Test]
+		public void UpdatePassword_Correctly_Updates_User_state()
+		{
+			User user = new User(new RandomString().Build(), new RandomString().Build(), new string[0]);
+			string newPassword = new RandomString().Build();
+			user.ChangePassword(newPassword);
+
+			user.Password.ShouldBeEquivalentTo(newPassword);
+		}
+
+		[Test]
+		public void ChangePassword_With_Invalid_Password_Throws_Exception()
+		{
+			User user = new User(new RandomString().Build(), new RandomString().Build(), new string[0]);
+			string invalidPassword = "12";
+			Assert.Throws<ArgumentException>(() =>
+				user.ChangePassword(invalidPassword));
+		}
+
 	}
 
 	public class RandomString

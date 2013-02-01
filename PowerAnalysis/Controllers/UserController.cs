@@ -8,7 +8,6 @@ using Encryption = HDC.PowerAnalysis.Utility.Encryption;
 
 namespace HDC.PowerAnalysis.Web.Controllers
 {
-	[AppHarbor.Web.RequireHttps]
 	public class UserController : RavenController
 	{
 		private readonly IAuthenticator _authenticator;
@@ -21,12 +20,14 @@ namespace HDC.PowerAnalysis.Web.Controllers
 		}
 
 		[HttpGet]
+		[AllowAnonymous]
 		public ActionResult New()
 		{
 			return View();
 		}
 
 		[HttpPost]
+		[AllowAnonymous]
 		public ActionResult Create(UserInputModel userInputModel)
 		{
 			if (RavenSession.Query<User>().Any(x => x.Username == userInputModel.Username))
@@ -49,17 +50,41 @@ namespace HDC.PowerAnalysis.Web.Controllers
 			return View("New", userInputModel);
 		}
 
-		//[HttpGet]
-		//[Authorize(Roles = "Administrator")]
-		//public ActionResult Show()
-		//{
-		//    var user = _repository.GetAll<User>().SingleOrDefault(x => x.Username == User.Identity.Name);
-		//    if (user == null)
-		//    {
-		//        throw new HttpException(404, "Not found");
-		//    }
+		[HttpGet]
+		public ActionResult UpdatePassword()
+		{
+			string userName = User.Identity.Name;
+			var user = RavenSession.Query<User>().FirstOrDefault(x => x.Username == userName);
+			if (user != null)
+			{
+				UserUpdatePasswordModel model = new UserUpdatePasswordModel()
+				{
+					Username = user.Username
+				};
+				return View(model);
+			}
+			return RedirectToAction("Index", "Home");
+		}
 
-		//    return View(user);
-		//}
+		[HttpPost]
+		public ActionResult UpdatePassword(UserUpdatePasswordModel model)
+		{
+			string userName = User.Identity.Name;
+			var user = RavenSession.Query<User>().FirstOrDefault(x => x.Username == userName);
+			if (!Encryption.Verify(model.OldPassword, user.Password))
+			{
+				ModelState.AddModelError("OldPassword", "Incorrect original password");
+				return View("UpdatePassword", model);
+			}
+
+			if (model.NewPassword != model.ConfirmNewPassword)
+			{
+				ModelState.AddModelError("ConfirmNewPassword", "New password confirmation incorrect");
+				return View("UpdatePassword", model);
+			}
+
+			user.ChangePassword(Encryption.HashPassword(model.NewPassword));
+			return RedirectToAction("Index", "Home");
+		}
 	}
 }
