@@ -6,6 +6,7 @@ using System.Net.Mail;
 using System.Text;
 using System.Web.Mvc;
 using HDC.PowerAnalysis.Web.Attributes;
+using NLog;
 using Newtonsoft.Json.Linq;
 
 namespace HDC.PowerAnalysis.Web.Controllers
@@ -16,6 +17,8 @@ namespace HDC.PowerAnalysis.Web.Controllers
 		[CustomAuthorize(Roles = "siteadministrator")]
 		public ActionResult Index()
 		{
+			Logger log = LogManager.GetCurrentClassLogger();
+			log.Info("Use accessing TestController.Index");
 			ViewBag.Message = "Test Application";
 			ViewBag.Version = ConfigurationManager.AppSettings["appharbor.commit_id"];
 			ViewBag.DbStatus = GetDbAdmin();
