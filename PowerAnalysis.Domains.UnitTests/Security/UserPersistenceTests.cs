@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using HDC.PowerAnalysis.Core;
 using HDC.PowerAnalysis.Security;
 using NUnit.Framework;
 using Raven.Client.Embedded;
@@ -17,7 +18,8 @@ namespace PowerAnalysis.Domains.UnitTests.Security
 				User user = new User(
 					new RandomString().Build(),
 					new RandomString().Build(),
-					new[] {new RandomString().Build(), new RandomString().Build()});
+					new[] {new RandomString().Build(), new RandomString().Build()},
+					new EntityReference("company/123", "CompanyDescription"));
 
 				// Act
 				using (var session = dataStore.OpenSession())

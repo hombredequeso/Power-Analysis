@@ -1,5 +1,6 @@
 ﻿using System;
 using FluentAssertions;
+using HDC.PowerAnalysis.Core;
 using HDC.PowerAnalysis.Security;
 using NUnit.Framework;
 
@@ -21,7 +22,7 @@ namespace PowerAnalysis.Domains.UnitTests.Security
 			                 	};
 
 			// Act
-			User user = new User(userName, password, roles);
+			User user = new User(userName, password, roles, null);
 
 			// Assert
 			user.ShouldBeEquivalentTo(new
@@ -29,7 +30,8 @@ namespace PowerAnalysis.Domains.UnitTests.Security
 											Id = (string)null,
 											Username = userName,
 											Password = password,
-											Roles = roles
+											Roles = roles,
+											Company = (EntityReference)null
 										});
 		}
 
@@ -40,13 +42,13 @@ namespace PowerAnalysis.Domains.UnitTests.Security
 		[TestCase("userName", "123456789", typeof(ArgumentException), TestName = "Password must have at least 10 chars long")]
 		public void Invalid_User_Cannot_Be_Created(string userName, string password, Type exceptionType)
 		{
-			Assert.Throws(exceptionType, () => new User(userName, password, new string[0]));
+			Assert.Throws(exceptionType, () => new User(userName, password, new string[0], null));
 		}
 
 		[Test]
 		public void UpdatePassword_Correctly_Updates_User_state()
 		{
-			User user = new User(new RandomString().Build(), new RandomString().Build(), new string[0]);
+			User user = new User(new RandomString().Build(), new RandomString().Build(), new string[0], null);
 			string newPassword = new RandomString().Build();
 			user.ChangePassword(newPassword);
 
@@ -56,7 +58,7 @@ namespace PowerAnalysis.Domains.UnitTests.Security
 		[Test]
 		public void ChangePassword_With_Invalid_Password_Throws_Exception()
 		{
-			User user = new User(new RandomString().Build(), new RandomString().Build(), new string[0]);
+			User user = new User(new RandomString().Build(), new RandomString().Build(), new string[0], null);
 			string invalidPassword = "12";
 			Assert.Throws<ArgumentException>(() =>
 				user.ChangePassword(invalidPassword));

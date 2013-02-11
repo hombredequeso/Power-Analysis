@@ -4,26 +4,14 @@ using System.Web;
 using System.Web.Mvc;
 using System.Linq;
 using System.Web.Routing;
+using HDC.PowerAnalysis.Mac;
+using HDC.PowerAnalysis.Mac.Queries;
+using HDC.PowerAnalysis.Security;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace HDC.PowerAnalysis.Web.Controllers
 {
-	public class ChartItem
-	{
-		public int x { get; set; }
-		public int y { get; set; }
-		public string label { get; set; }
-	}
-
-	public class Chart
-	{
-		public string Id { get; set; }
-		public string Name { get; set; }
-		public string Description { get; set; }
-		public ChartItem[] Items { get; set; }
-	}
-
 	public static class ViewSerializer
 	{
 		public static string Serialize(this object x)
@@ -43,7 +31,11 @@ namespace HDC.PowerAnalysis.Web.Controllers
 	{
 		public ActionResult Index()
 		{
-			var existingCharts = RavenSession.Query<Chart>().ToList();
+			string userName = User.Identity.Name;
+			var user = RavenSession.Query<User>().Single(x => x.Username == userName);
+			var existingCharts = RavenSession.Query<Chart>()
+				.SecurityFilter(user.Company, user.Roles)
+				.ToList();
 			return View(existingCharts);
 		}
 
@@ -71,6 +63,9 @@ namespace HDC.PowerAnalysis.Web.Controllers
 						string text = reader.ReadToEnd();
 						Chart chart = JsonConvert.DeserializeObject<Chart>(text);
 						Validate(chart);
+						string userName = User.Identity.Name;
+						var user = RavenSession.Query<User>().FirstOrDefault(x => x.Username == userName);
+						chart.Company = user.Company;
 						RavenSession.Store(chart);
 						return RedirectToAction("Set", "Mac", new RouteValueDictionary { { "id", chart.Id.Substring(7) } });
 					}

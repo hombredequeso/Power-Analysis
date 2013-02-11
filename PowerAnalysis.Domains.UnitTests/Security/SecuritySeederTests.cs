@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using FluentAssertions;
+using HDC.PowerAnalysis.Core;
 using HDC.PowerAnalysis.Security;
 using NUnit.Framework;
 using Raven.Client.Document;
@@ -32,7 +33,8 @@ namespace PowerAnalysis.Domains.UnitTests.Security
 					{
 						Id = "users/1",
 						Username = "mcheeseman",
-						Roles = new[]{"siteadministrator", "administrator"}
+						Roles = new[]{"siteadministrator", "administrator"},
+						Company = (EntityReference)null
 					},
 					options => options.Excluding(x => x.Password));
 				}

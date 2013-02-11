@@ -62,7 +62,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\EntityReferenceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Security\CompanyTests.cs" />
+    <Compile Include="Security\MacQueryTests.cs" />
     <Compile Include="Security\SecuritySeederTests.cs" />
     <Compile Include="Security\UserPersistenceTests.cs" />
     <Compile Include="Security\UserTests.cs" />

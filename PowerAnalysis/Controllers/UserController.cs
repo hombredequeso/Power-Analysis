@@ -37,7 +37,14 @@ namespace HDC.PowerAnalysis.Web.Controllers
 
 			if (ModelState.IsValid)
 			{
-				var user = new User(userInputModel.Username, Encryption.HashPassword(userInputModel.Password), new string[0]);
+				var company = new Company(userInputModel.Username + " Co.");
+				RavenSession.Store(company);
+
+				var user = new User(
+					userInputModel.Username, 
+					Encryption.HashPassword(userInputModel.Password), 
+					new string[0], 
+					company);
 
 				RavenSession.Store(user);
 
