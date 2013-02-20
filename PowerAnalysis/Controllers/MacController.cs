@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Web;
 using System.Web.Mvc;
@@ -9,6 +10,7 @@ using HDC.PowerAnalysis.Mac.Queries;
 using HDC.PowerAnalysis.Security;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Raven.Client;
 
 namespace HDC.PowerAnalysis.Web.Controllers
 {
@@ -27,13 +29,22 @@ namespace HDC.PowerAnalysis.Web.Controllers
 	}
 
 
-	public class MacController : RavenController
+	public class MacController : Controller
 	{
+		private readonly IDocumentSession _session;
+		private readonly IExecutionContext _executionContext;
+
+		public MacController(IDocumentSession session, IExecutionContext executionContext)
+		{
+			_session = session;
+			_executionContext = executionContext;
+		}
+
 		public ActionResult Index()
 		{
-			string userName = User.Identity.Name;
-			var user = RavenSession.Query<User>().Single(x => x.Username == userName);
-			var existingCharts = RavenSession.Query<Chart>()
+			string userName = _executionContext.Username;
+			var user = _session.Query<User>().Single(x => x.Username == userName);
+			List<Chart> existingCharts = _session.Query<Chart>()
 				.SecurityFilter(user.Company, user.Roles)
 				.ToList();
 			return View(existingCharts);
@@ -41,7 +52,7 @@ namespace HDC.PowerAnalysis.Web.Controllers
 
 		public ActionResult Set(int id)
 		{
-			var chart = RavenSession.Load<Chart>("charts/" + id);
+			var chart = _session.Load<Chart>("charts/" + id);
 
 			return View(chart);
 		}
@@ -64,9 +75,9 @@ namespace HDC.PowerAnalysis.Web.Controllers
 						Chart chart = JsonConvert.DeserializeObject<Chart>(text);
 						Validate(chart);
 						string userName = User.Identity.Name;
-						var user = RavenSession.Query<User>().FirstOrDefault(x => x.Username == userName);
+						var user = _session.Query<User>().FirstOrDefault(x => x.Username == userName);
 						chart.Company = user.Company;
-						RavenSession.Store(chart);
+						_session.Store(chart);
 						return RedirectToAction("Set", "Mac", new RouteValueDictionary { { "id", chart.Id.Substring(7) } });
 					}
 				}

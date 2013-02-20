@@ -7,10 +7,7 @@ namespace HDC.PowerAnalysis.Web.Controllers
 	{
 		public ActionResult Index()
 		{
-			ViewBag.Message = "Test Application";
-
 			return View();
-		}
-		 
+		}	 
 	}
 }

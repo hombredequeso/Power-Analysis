@@ -3,29 +3,25 @@ using FluentAssertions;
 using HDC.PowerAnalysis.Core;
 using HDC.PowerAnalysis.Security;
 using NUnit.Framework;
-using Raven.Client.Document;
-using Raven.Client.Embedded;
+using PowerAnalysis.Domains.UnitTests.Controllers;
+using PowerAnalysis.Domains.UnitTests.TestInfrastructure;
 
 namespace PowerAnalysis.Domains.UnitTests.Security
 {
 	[TestFixture]
-	public class SecuritySeederTests
+	public class SecuritySeederTests : AAATestInfrastructure
 	{
 		[Test]
 		public void If_There_Are_No_Users_A_Site_Administrator_Is_Created()
 		{
-			// Arrange
-			using (var dataStore = new EmbeddableDocumentStore {RunInMemory = true}.Initialize())
-			{
-				dataStore.Conventions.DefaultQueryingConsistency = ConsistencyOptions.QueryYourWrites;
-				// Act
-				var siteAdministratorPassword = "ThisIsATestPassword";
-				SecuritySeeder.Run(dataStore, siteAdministratorPassword);
-
+			var siteAdministratorPassword = "ThisIsATestPassword";
+			// Act
+				Act(() => {
+					SecuritySeeder.Run(_store, siteAdministratorPassword);
+				});
 				// Assert
-				using (var session = dataStore.OpenSession())
-				{
-					var masterAdministrator = session.Query<User>().SingleOrDefault();
+			AssertThat(() => {
+					var masterAdministrator = _session.Query<User>().SingleOrDefault();
 
 					Assert.NotNull(masterAdministrator);
 
@@ -37,8 +33,7 @@ namespace PowerAnalysis.Domains.UnitTests.Security
 						Company = (EntityReference)null
 					},
 					options => options.Excluding(x => x.Password));
-				}
-			}
+			});
 		}
 	}
 }

@@ -2,40 +2,33 @@
 using HDC.PowerAnalysis.Core;
 using HDC.PowerAnalysis.Security;
 using NUnit.Framework;
-using Raven.Client.Embedded;
+using PowerAnalysis.Domains.UnitTests.Controllers;
+using PowerAnalysis.Domains.UnitTests.TestInfrastructure;
 
 namespace PowerAnalysis.Domains.UnitTests.Security
 {
 	[TestFixture]
-	public class UserPersistenceTests
+	public class UserPersistenceTests : AAATestInfrastructure
 	{
 		[Test]
 		public void User_Is_Correctly_Persisted_And_Retrieved()
 		{
-			using (var dataStore = new EmbeddableDocumentStore { RunInMemory = true }.Initialize())
-			{
-				// Arrange
-				User user = new User(
-					new RandomString().Build(),
-					new RandomString().Build(),
-					new[] {new RandomString().Build(), new RandomString().Build()},
-					new EntityReference("company/123", "CompanyDescription"));
+			User user = new User(
+				new RandomString().Build(),
+				new RandomString().Build(),
+				new[] {new RandomString().Build(), new RandomString().Build()},
+				new EntityReference("company/123", "CompanyDescription"));
 
-				// Act
-				using (var session = dataStore.OpenSession())
-				{
-					session.Store(user);
-					session.SaveChanges();
-				}
+			Act(() =>
+			    	{
+			    		_session.Store(user);
+			    	});
 
-				// Assert
-				using (var session = dataStore.OpenSession())
-				{
-					var retrievedUser = session.Load<User>(user.Id);
-					retrievedUser.ShouldBeEquivalentTo(user);
-				}
-			}
+			AssertThat(() =>
+			           	{
+			           		var retrievedUser = _session.Load<User>(user.Id);
+			           		retrievedUser.ShouldBeEquivalentTo(user);
+			           	});
 		}
-
 	}
 }

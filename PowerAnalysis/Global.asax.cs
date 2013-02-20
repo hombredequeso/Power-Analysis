@@ -5,6 +5,7 @@ using System.Web.Optimization;
 using System.Web.Routing;
 using HDC.PowerAnalysis.Security;
 using HDC.PowerAnalysis.Utility;
+using HDC.PowerAnalysis.Web.Attributes;
 using PowerAnalysis;
 using Raven.Client;
 using Raven.Client.Document;
@@ -13,6 +14,7 @@ namespace HDC.PowerAnalysis.Web
 {
 	public class MvcApplication : System.Web.HttpApplication
 	{
+
 		protected void Application_Start()
 		{
 			AreaRegistration.RegisterAllAreas();
@@ -21,6 +23,8 @@ namespace HDC.PowerAnalysis.Web
 			FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
 			RouteConfig.RegisterRoutes(RouteTable.Routes);
 			BundleConfig.RegisterBundles(BundleTable.Bundles);
+
+			GlobalFilters.Filters.Add(new RavenSessionAttribute());
 			InitializeRavenDb();
 			string defaultSiteAdministratorPassword = ConfigurationManager.AppSettings["DefaultSiteAdministratorPassword"];
 			if (string.IsNullOrWhiteSpace(defaultSiteAdministratorPassword))

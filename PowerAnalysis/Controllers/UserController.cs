@@ -1,22 +1,22 @@
 ﻿using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 using AppHarbor.Web.Security;
 using HDC.PowerAnalysis.Security;
 using HDC.PowerAnalysis.Web.ViewModels;
+using Raven.Client;
 using Encryption = HDC.PowerAnalysis.Utility.Encryption;
 
 namespace HDC.PowerAnalysis.Web.Controllers
 {
-	public class UserController : RavenController
+	public class UserController : Controller
 	{
 		private readonly IAuthenticator _authenticator;
+		private readonly IDocumentSession _session;
 
-		public UserController()
+		public UserController(IAuthenticator authenticator, IDocumentSession session)
 		{
-			_authenticator = new CookieAuthenticator(
-				new ConfigFileAuthenticationConfiguration(),
-				new HttpContextWrapper(System.Web.HttpContext.Current));
+			_authenticator = authenticator;
+			_session = session;
 		}
 
 		[HttpGet]
@@ -30,7 +30,7 @@ namespace HDC.PowerAnalysis.Web.Controllers
 		[AllowAnonymous]
 		public ActionResult Create(UserInputModel userInputModel)
 		{
-			if (RavenSession.Query<User>().Any(x => x.Username == userInputModel.Username))
+			if (_session.Query<User>().Any(x => x.Username == userInputModel.Username))
 			{
 				ModelState.AddModelError("Username", "Username is already in use");
 			}
@@ -38,7 +38,7 @@ namespace HDC.PowerAnalysis.Web.Controllers
 			if (ModelState.IsValid)
 			{
 				var company = new Company(userInputModel.Username + " Co.");
-				RavenSession.Store(company);
+				_session.Store(company);
 
 				var user = new User(
 					userInputModel.Username, 
@@ -46,7 +46,7 @@ namespace HDC.PowerAnalysis.Web.Controllers
 					new string[0], 
 					company);
 
-				RavenSession.Store(user);
+				_session.Store(user);
 
 				//_authenticator.SetCookie(user.Username);
 				_authenticator.SetCookie(user.Username, false, user.Roles.ToArray());
@@ -61,7 +61,7 @@ namespace HDC.PowerAnalysis.Web.Controllers
 		public ActionResult UpdatePassword()
 		{
 			string userName = User.Identity.Name;
-			var user = RavenSession.Query<User>().FirstOrDefault(x => x.Username == userName);
+			var user = _session.Query<User>().FirstOrDefault(x => x.Username == userName);
 			if (user != null)
 			{
 				UserUpdatePasswordModel model = new UserUpdatePasswordModel()
@@ -77,7 +77,7 @@ namespace HDC.PowerAnalysis.Web.Controllers
 		public ActionResult UpdatePassword(UserUpdatePasswordModel model)
 		{
 			string userName = User.Identity.Name;
-			var user = RavenSession.Query<User>().FirstOrDefault(x => x.Username == userName);
+			var user = _session.Query<User>().FirstOrDefault(x => x.Username == userName);
 			if (!Encryption.Verify(model.OldPassword, user.Password))
 			{
 				ModelState.AddModelError("OldPassword", "Incorrect original password");

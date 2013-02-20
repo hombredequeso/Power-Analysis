@@ -1,74 +1,66 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using HDC.PowerAnalysis.Core;
 using HDC.PowerAnalysis.Mac;
 using HDC.PowerAnalysis.Mac.Queries;
 using HDC.PowerAnalysis.Security;
 using NUnit.Framework;
-using Raven.Client.Document;
-using Raven.Client.Embedded;
-using Raven.Client.Linq;
+using PowerAnalysis.Domains.UnitTests.Controllers;
+using PowerAnalysis.Domains.UnitTests.TestInfrastructure;
 
 namespace PowerAnalysis.Domains.UnitTests.Security
 {
 	[TestFixture]
-	public class MacQueryTests
+	public class MacQueryTests : AAATestInfrastructure
 	{
+		private EntityReference companyA;
+		private Chart companyAChart;
+		private EntityReference companyB;
+		private Chart companyBChart;
+
+
+		public MacQueryTests()
+		{
+			_given = () =>
+			         	{
+			         		companyA = new EntityReference("companies/123", "CompanyDescription");
+			         		companyAChart = new Chart() {Company = companyA};
+			         		companyB = new EntityReference("companies/456", "CompanyDescription");
+			         		companyBChart = new Chart() {Company = companyB};
+
+			         		_session.Store(companyAChart);
+			         		_session.Store(companyBChart);
+			         	};
+		}
+
 		[Test]
 		public void Correct_Charts_Are_Returned_Per_Company()
 		{
-			using (var dataStore = new EmbeddableDocumentStore { RunInMemory = true }.Initialize())
-			{
-				dataStore.Conventions.DefaultQueryingConsistency = ConsistencyOptions.QueryYourWrites;
+			IList<string> charts = null;
+			Act(() =>
+			    	{
+			    		charts = _session.Query<Chart>()
+			    			.SecurityFilter(companyAChart.Company, null)
+			    			.Select(x => x.Id).ToList();
+			    	});
 
-				Chart chart = new Chart(){Company = new EntityReference("companies/123", "CompanyDescription")};
-				Chart chart2 = new Chart(){Company = new EntityReference("companies/456", "CompanyDescription")};
-
-				using (var session = dataStore.OpenSession())
-				{
-					session.Store(chart);
-					session.Store(chart2);
-					session.SaveChanges();
-				}
-
-				// Assert
-				using (var session = dataStore.OpenSession())
-				{
-					var charts = session.Query<Chart>()
-						.SecurityFilter(chart.Company, null)
-						.ToList();
-					Assert.AreEqual(1, charts.Count());
-					Assert.AreEqual(chart.Id, charts.Single().Id);
-				}
-			}
+			var expectedCharts = new List<string>() {companyAChart.Id};
+			Assert.AreEqual(expectedCharts, charts);
 		}
 
 		[Test]
 		public void All_Charts_Are_Returned_For_Site_Administrator()
 		{
-			using (var dataStore = new EmbeddableDocumentStore { RunInMemory = true }.Initialize())
-			{
-				dataStore.Conventions.DefaultQueryingConsistency = ConsistencyOptions.QueryYourWrites;
-
-				Chart chart = new Chart() { Company = new EntityReference("companies/123", "CompanyDescription") };
-				Chart chart2 = new Chart() { Company = new EntityReference("companies/456", "CompanyDescription") };
-
-				using (var session = dataStore.OpenSession())
-				{
-					session.Store(chart);
-					session.Store(chart2);
-					session.SaveChanges();
-				}
-
-				// Assert
-				using (var session = dataStore.OpenSession())
-				{
-					var charts = session.Query<Chart>()
-						.SecurityFilter(null, new[]{Roles.SiteAdministrator})
-						.ToList();
-					Assert.AreEqual(2, charts.Count());
-				}
-			}
+			IList<string> charts = null;
+			Act(() =>
+			    	{
+			    		charts = _session.Query<Chart>()
+			    			.SecurityFilter(companyAChart.Company, new[] {Roles.SiteAdministrator})
+							.Select(x => x.Id).ToList();
+					});
+			
+			var expectedCharts = new List<string>() {companyAChart.Id, companyBChart.Id};
+			Assert.AreEqual(expectedCharts, charts);
 		}
-
 	}
 }
