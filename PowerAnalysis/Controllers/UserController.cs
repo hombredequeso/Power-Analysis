@@ -48,8 +48,7 @@ namespace HDC.PowerAnalysis.Web.Controllers
 
 				_session.Store(user);
 
-				//_authenticator.SetCookie(user.Username);
-				_authenticator.SetCookie(user.Username, false, user.Roles.ToArray());
+				_authenticator.SetCookie(user.Id, false, user.Roles.ToArray());
 
 				return RedirectToAction("Index", "Home");
 			}
@@ -94,4 +93,5 @@ namespace HDC.PowerAnalysis.Web.Controllers
 			return RedirectToAction("Index", "Home");
 		}
 	}
+
 }

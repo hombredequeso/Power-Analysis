@@ -63,7 +63,6 @@ namespace PowerAnalysis.Domains.UnitTests.Security
 			Assert.Throws<ArgumentException>(() =>
 				user.ChangePassword(invalidPassword));
 		}
-
 	}
 
 	public class RandomString

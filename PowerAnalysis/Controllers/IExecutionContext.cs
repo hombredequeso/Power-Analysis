@@ -5,7 +5,7 @@ namespace HDC.PowerAnalysis.Web.Controllers
 {
 	public interface IExecutionContext
 	{
-		string Username { get; }	 
+		string UserId { get; }	 
 	}
 
 	public class ExecutionContext : IExecutionContext
@@ -15,7 +15,7 @@ namespace HDC.PowerAnalysis.Web.Controllers
 			
 		}	
 	
-		public string Username
+		public string UserId
 		{
 			get
 			{

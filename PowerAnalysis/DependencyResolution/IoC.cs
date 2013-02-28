@@ -18,8 +18,10 @@
 
 using System.Web;
 using AppHarbor.Web.Security;
+using HDC.PowerAnalysis.DAL;
 using Raven.Client;
 using Raven.Client.Document;
+using Raven.Client.Embedded;
 using StructureMap;
 
 namespace HDC.PowerAnalysis.Web.DependencyResolution
@@ -36,6 +38,8 @@ namespace HDC.PowerAnalysis.Web.DependencyResolution
 			                         		       		scan.WithDefaultConventions();
 			                         		       	});
 
+			                         		x.AddRegistry<PowerAnalysisDomainsRegistry>();
+
 			                         		// Appharbor authentication:
 			                         		x.For<HttpContextBase>()
 			                         			.Use(() => new HttpContextWrapper(HttpContext.Current));
@@ -44,23 +48,71 @@ namespace HDC.PowerAnalysis.Web.DependencyResolution
 			                         		x.For<IAuthenticator>()
 			                         			.Use<CookieAuthenticator>();
 
+														x.ForSingletonOf<IDocumentStore>().Use(() =>
+														{
+															var RavenStore = new DocumentStore
+															{
+																ConnectionStringName =
+																	"RavenDB"
+															};
+															RavenStore.Initialize();
+															return RavenStore;
+														});
 			                         		// RavenDb:
-			                         		x.ForSingletonOf<IDocumentStore>().Use(() =>
-			                         		                                       	{
-			                         		                                       		var RavenStore = new DocumentStore
-			                         		                                       		                 	{
-			                         		                                       		                 		ConnectionStringName =
-			                         		                                       		                 			"RavenDB"
-			                         		                                       		                 	};
-			                         		                                       		RavenStore.Initialize();
-			                         		                                       		return RavenStore;
-			                         		                                       	});
 
-			                         		// register RavenDB document session
 			                         		x.For<IDocumentSession>().HybridHttpOrThreadLocalScoped().Use(
-			                         			context => { return context.GetInstance<IDocumentStore>().OpenSession(); });
+			                         			context =>
+			                         				{
+			                         					var session = context.GetInstance<IDocumentStore>().OpenSession();
+			                         					session.Advanced.UseOptimisticConcurrency = true;
+			                         					return new SessionDecorator(session, context.GetAllInstances<IStoreDecorator>());
+			                         				});
 			                         	});
 			return ObjectFactory.Container;
+		}
+
+		public static IContainer InitializeForTests()
+		{
+			ObjectFactory.Initialize(x =>
+			{
+				x.Scan(scan =>
+				{
+					scan.TheCallingAssembly();
+					scan.WithDefaultConventions();
+				});
+
+				x.AddRegistry<PowerAnalysisDomainsRegistry>();
+
+				// Appharbor authentication:
+				x.For<HttpContextBase>()
+					.Use(() => new HttpContextWrapper(HttpContext.Current));
+				x.For<ICookieAuthenticationConfiguration>()
+					.Use<ConfigFileAuthenticationConfiguration>();
+				x.For<IAuthenticator>()
+					.Use<CookieAuthenticator>();
+
+						x.For<IDocumentStore>().Use(() =>
+						{
+
+							var store = new EmbeddableDocumentStore { RunInMemory = true }.Initialize();
+							store.Conventions.DefaultQueryingConsistency = ConsistencyOptions.QueryYourWrites;
+							return store;
+						});
+
+
+
+				// RavenDb:
+
+				x.For<IDocumentSession>().HybridHttpOrThreadLocalScoped().Use(
+					context =>
+					{
+						var session = context.GetInstance<IDocumentStore>().OpenSession();
+						session.Advanced.UseOptimisticConcurrency = true;
+						return new SessionDecorator(session, context.GetAllInstances<IStoreDecorator>());
+					});
+			});
+			return ObjectFactory.Container;
+			
 		}
 	}
 }

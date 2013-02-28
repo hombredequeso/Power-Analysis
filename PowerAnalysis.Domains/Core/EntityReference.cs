@@ -2,7 +2,7 @@
 
 namespace HDC.PowerAnalysis.Core
 {
-	public class EntityReference
+	public class EntityReference : IEquatable<EntityReference>
 	{
 		public EntityReference(string id, string description)
 		{
@@ -17,5 +17,35 @@ namespace HDC.PowerAnalysis.Core
 
 		public string Id { get; private set; }
 		public string Description { get; private set; }
+
+		public bool Equals(EntityReference other)
+		{
+			if (ReferenceEquals(null, other)) return false;
+			if (ReferenceEquals(this, other)) return true;
+			return Equals(other.Id, Id);
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != typeof (EntityReference)) return false;
+			return Equals((EntityReference) obj);
+		}
+
+		public override int GetHashCode()
+		{
+			return Id.GetHashCode();
+		}
+
+		public static bool operator ==(EntityReference left, EntityReference right)
+		{
+			return Equals(left, right);
+		}
+
+		public static bool operator !=(EntityReference left, EntityReference right)
+		{
+			return !Equals(left, right);
+		}
 	}
 }

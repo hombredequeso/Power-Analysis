@@ -42,8 +42,7 @@ namespace HDC.PowerAnalysis.Web.Controllers
 
 		public ActionResult Index()
 		{
-			string userName = _executionContext.Username;
-			var user = _session.Query<User>().Single(x => x.Username == userName);
+			var user = _session.Load<User>(_executionContext.UserId);
 			List<Chart> existingCharts = _session.Query<Chart>()
 				.SecurityFilter(user.Company, user.Roles)
 				.ToList();
@@ -53,8 +52,11 @@ namespace HDC.PowerAnalysis.Web.Controllers
 		public ActionResult Set(int id)
 		{
 			var chart = _session.Load<Chart>("charts/" + id);
+			var user = _session.Load<User>(_executionContext.UserId);
 
-			return View(chart);
+			if (user.HasAccessTo(chart))
+				return View(chart);
+			return this.Redirect("~/");
 		}
 
 		public ActionResult Load()
