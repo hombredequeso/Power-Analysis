@@ -33,10 +33,9 @@ window.HDQ.maccurve = (function () {
 			preProcessedItems.sort(function (a, b) { return a.height - b.height; });
 			var xInItemCoords = currentX;
 			var canvasX = 500;
-			var canvasRightBorder = 10;
+			var canvasRightBorder = 50;
 			var canvasXForItems = canvasX - canvasXOffset - canvasRightBorder;
 			var xScaling = canvasXForItems / xInItemCoords;
-
 
 			var yCoords = items.map(function (i) { return i.yCalc; });
 			var yMaxInItemCoords = Math.max.apply(Math, yCoords);
@@ -131,8 +130,49 @@ window.HDQ.maccurve = (function () {
 			ctx.translate(canvasXOffset, yTranslation);
 
 			// Draw axis
-			line({ x: 0, y: -yTranslation }, { x: 0, y: (canvasY - yTranslation) });
-			line({ x: 0, y: 0 }, { x: 450, y: 0 });
+			line({ x: 0, y: -yTranslation + 7 }, { x: 0, y: (canvasY - yTranslation) });
+			var horizontalAxisOverhang = 10;
+			line({ x: 0, y: 0 }, { x: 450 - canvasRightBorder + horizontalAxisOverhang, y: 0 });
+			
+			// axis label
+			// x : Mt CO2
+			ctx.fillText('$/t CO2', -15, -yTranslation + 7);
+			// y : $/t CO2
+			ctx.save();
+			ctx.textBaseline = 'middle';
+			ctx.fillText('Mt CO2', 450 - canvasRightBorder + horizontalAxisOverhang + 5, 0);
+			ctx.restore();
+			
+			var getInterval = function (x) {
+				var intervals = [0.1, 0.5, 1, 5, 10, 20, 50, 100, 500, 1000, 5000, 10000];
+				var l = intervals.length;
+				for (var i = 0; i < l; i++) {
+					if (x <= intervals[i]) return intervals[i];	
+				}
+				return 100000;
+			};
+			
+			// vertical scaling
+			ctx.save();
+			ctx.textBaseline = 'middle';
+			ctx.textAlign = 'right';
+//			ctx.fillText('0', -7, 0);
+//			line({x:0,y:0}, {x: -5,y: 0});
+			var interval = getInterval(Math.floor(yRange / 10));
+			var currentPos = 0;
+			while (currentPos <= yMaxInItemCoords) {
+				ctx.fillText(currentPos.toString(), -7, -currentPos * yScaling);
+				line({x:0,y:-currentPos * yScaling}, {x: -5,y: -currentPos * yScaling});
+				currentPos += interval;
+			}
+
+			var currentPos = -interval;
+			while (currentPos > yMinInItemCoords) {
+				ctx.fillText(currentPos.toString(), -7, -currentPos * yScaling);
+				line({x:0,y:-currentPos * yScaling}, {x: -5,y: -currentPos * yScaling});
+				currentPos -= interval;
+			}
+			ctx.restore();
 
 
 			ctx.fillStyle = 'green';
@@ -140,6 +180,20 @@ window.HDQ.maccurve = (function () {
 			itemsInVpCoords.forEach(drawItem);
 			ctx.fillStyle = 'black';
 			itemsInVpCoords.forEach(drawLabel);
+			
+			// horizontal scale
+			ctx.save();
+			ctx.textBaseline = 'middle';
+			ctx.textAlign = 'center';
+			interval = getInterval(xInItemCoords/10);
+			currentPos = 0 + interval;
+			while (currentPos <= xInItemCoords) {
+				ctx.fillText(currentPos.toString(), currentPos * xScaling, 10);
+				line({x:currentPos * xScaling,y:0}, {x: currentPos * xScaling,y: 5});
+				currentPos += interval;
+			}
+			ctx.restore();
+
 
 			ctx.restore();
 		}
