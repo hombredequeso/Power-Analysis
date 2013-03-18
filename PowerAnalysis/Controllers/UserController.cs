@@ -12,11 +12,16 @@ namespace HDC.PowerAnalysis.Web.Controllers
 	{
 		private readonly IAuthenticator _authenticator;
 		private readonly IDocumentSession _session;
+		private readonly IExecutionContext _executionContext;
 
-		public UserController(IAuthenticator authenticator, IDocumentSession session)
+		public UserController(
+			IAuthenticator authenticator,
+			IDocumentSession session,
+			IExecutionContext executionContext)
 		{
 			_authenticator = authenticator;
 			_session = session;
+			_executionContext = executionContext;
 		}
 
 		[HttpGet]
@@ -41,9 +46,9 @@ namespace HDC.PowerAnalysis.Web.Controllers
 				_session.Store(company);
 
 				var user = new User(
-					userInputModel.Username, 
-					Encryption.HashPassword(userInputModel.Password), 
-					new string[0], 
+					userInputModel.Username,
+					Encryption.HashPassword(userInputModel.Password),
+					new string[0],
 					company);
 
 				_session.Store(user);
@@ -59,14 +64,13 @@ namespace HDC.PowerAnalysis.Web.Controllers
 		[HttpGet]
 		public ActionResult UpdatePassword()
 		{
-			string userName = User.Identity.Name;
-			var user = _session.Query<User>().FirstOrDefault(x => x.Username == userName);
+			var user = _session.Load<User>(_executionContext.UserId);
 			if (user != null)
 			{
 				UserUpdatePasswordModel model = new UserUpdatePasswordModel()
-				{
-					Username = user.Username
-				};
+				                                	{
+				                                		Username = user.Username
+				                                	};
 				return View(model);
 			}
 			return RedirectToAction("Index", "Home");
@@ -75,8 +79,7 @@ namespace HDC.PowerAnalysis.Web.Controllers
 		[HttpPost]
 		public ActionResult UpdatePassword(UserUpdatePasswordModel model)
 		{
-			string userName = User.Identity.Name;
-			var user = _session.Query<User>().FirstOrDefault(x => x.Username == userName);
+			var user = _session.Load<User>(_executionContext.UserId);
 			if (!Encryption.Verify(model.OldPassword, user.Password))
 			{
 				ModelState.AddModelError("OldPassword", "Incorrect original password");
@@ -92,6 +95,24 @@ namespace HDC.PowerAnalysis.Web.Controllers
 			user.ChangePassword(Encryption.HashPassword(model.NewPassword));
 			return RedirectToAction("Index", "Home");
 		}
-	}
 
+		[ChildActionOnly]
+		[AllowAnonymous]
+		public PartialViewResult LogOnWidget()
+		{
+			string userName = null;
+			if (!string.IsNullOrWhiteSpace(_executionContext.UserId))
+			{
+			}
+			var user = HttpContext.User;
+			bool isLoggedOn = (user != null && user.Identity != null && user.Identity.IsAuthenticated);
+			if (isLoggedOn)
+			{
+				userName = _session.Load<User>(_executionContext.UserId).Username;
+			}
+
+			var vm = new LogOnWidgetViewModel() {IsLoggedOn = isLoggedOn, Username = userName};
+			return PartialView(vm);
+		}
+	}
 }

@@ -1,0 +1,13 @@
+﻿@model HDC.PowerAnalysis.Web.ViewModels.LogOnWidgetViewModel
+
+@{
+	if (Model.IsLoggedOn) {
+		@:logged in as @Model.Username
+		using (Html.BeginForm("Destroy", "Session")) {
+			<button type="submit">Sign out</button>
+		}
+	} else {
+		@Html.ActionLink("log in", "New", "Session", new { returnUrl = Request.Path }, null)
+		@:/ @Html.ActionLink("sign up", "New", "User")
+	}
+}

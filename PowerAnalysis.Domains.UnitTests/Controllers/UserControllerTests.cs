@@ -23,7 +23,7 @@ namespace PowerAnalysis.Domains.UnitTests.Controllers
 
 			Act(() =>
 			    	{
-			    		var controller = new UserController(Substitute.For<IAuthenticator>(), _session);
+			    		var controller = new UserController(Substitute.For<IAuthenticator>(), _session, null);
 			    		controller.Create(userViewModel);
 			    	});
 

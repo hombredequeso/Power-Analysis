@@ -76,5 +76,6 @@ namespace HDC.PowerAnalysis.Web.Controllers
 			Session.Abandon();
 			return RedirectToAction("Index", "Home");
 		}
-	}
+
+    }
 }

@@ -21,7 +21,7 @@ namespace PowerAnalysis.Domains.UnitTests.Core
 			entityReference.ShouldBeEquivalentTo(new
 										{
 											Id = id,
-											Description = description
+											Description = description,
 										});
 		}
 

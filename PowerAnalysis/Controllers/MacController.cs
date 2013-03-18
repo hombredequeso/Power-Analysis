@@ -76,8 +76,7 @@ namespace HDC.PowerAnalysis.Web.Controllers
 						string text = reader.ReadToEnd();
 						Chart chart = JsonConvert.DeserializeObject<Chart>(text);
 						Validate(chart);
-						string userName = User.Identity.Name;
-						var user = _session.Query<User>().FirstOrDefault(x => x.Username == userName);
+						var user = _session.Load<User>(_executionContext.UserId);
 						chart.Company = user.Company;
 						_session.Store(chart);
 						return RedirectToAction("Set", "Mac", new RouteValueDictionary { { "id", chart.Id.Substring(7) } });
